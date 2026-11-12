@@ -59,6 +59,7 @@ public class AppSettings : ObservableObject
     bool _loaded;
 
     bool _startWithWindows;
+    bool _startMenuShortcut = true;
     bool _hideInFullscreen = true;
     bool _sounds = true;
     bool _showMascot = true;
@@ -313,6 +314,8 @@ public class AppSettings : ObservableObject
     [JsonIgnore]
     public string TimeFormat => _use24Hour ? "HH:mm" : "h:mm tt";
 
+    /// <summary>Keep a Piztki entry in the Start menu, so it can be found, searched for, and pinned like an installed app.</summary>
+    public bool StartMenuShortcut { get => _startMenuShortcut; set => Set(ref _startMenuShortcut, value); }
     public bool StartWithWindows { get => _startWithWindows; set => Set(ref _startWithWindows, value); }
     public bool HideInFullscreen { get => _hideInFullscreen; set => Set(ref _hideInFullscreen, value); }
     public bool Sounds { get => _sounds; set => Set(ref _sounds, value); }

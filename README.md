@@ -109,7 +109,7 @@ Nothing else needs to be installed.
 
 **Windows may show "Windows protected your PC" the first time.** That appears for any app that isn't sold through a store or signed with a paid certificate. Choose **More info**, then **Run anyway**.
 
-To have Piztki start with your PC, open Settings (the gear in the notch) and turn on **Start with Windows**.
+Piztki adds itself to the Start menu the first time it runs, so you can search for it or pin it (switch off in Settings, General). To have Piztki start with your PC, open Settings (the gear in the notch) and turn on **Start with Windows**.
 
 To quit, right-click the Piztki icon next to the clock and choose **Quit Piztki**.
 
@@ -118,6 +118,8 @@ To quit, right-click the Piztki icon next to the clock and choose **Quit Piztki*
 - Windows 10 (version 2004 or newer) or Windows 11, 64-bit
 
 ## Uninstall
+
+Switch off **Show in the Start menu** and **Start with Windows** in Settings first, so nothing is left pointing at the app.
 
 Quit Piztki, delete `Piztki.exe`, and, if you want your data gone too, delete the folder `%LocalAppData%\Piztki`.
 

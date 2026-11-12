@@ -71,7 +71,9 @@ public partial class App : Application
         {
             if (args.PropertyName == nameof(AppSettings.Accent)) ApplyAccent();
             if (args.PropertyName == nameof(AppSettings.StartWithWindows)) ApplyStartup();
+            if (args.PropertyName == nameof(AppSettings.StartMenuShortcut)) ApplyStartMenu();
         };
+        ApplyStartMenu(); // also repairs the entry after the app's folder was moved
 
         CreateTray();
         Notch = new NotchWindow();
@@ -123,6 +125,43 @@ public partial class App : Application
         var brush = new SolidColorBrush(color);
         brush.Freeze();
         Resources["AccentBrush"] = brush;
+    }
+
+    /// <summary>Where Piztki's Start menu entry lives (this user's own Programs folder).</summary>
+    public static string StartMenuLink =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Piztki.lnk");
+
+    /// <summary>
+    /// Piztki comes as a plain folder with no installer, so nothing puts it in the Start menu.
+    /// This adds (or removes) the entry itself, pointing at wherever the app is running from.
+    /// </summary>
+    void ApplyStartMenu()
+    {
+        try
+        {
+            string link = StartMenuLink;
+            if (Settings.StartMenuShortcut && Environment.ProcessPath is { } exe)
+            {
+                var type = Type.GetTypeFromProgID("WScript.Shell");
+                if (type == null) return;
+                dynamic shell = Activator.CreateInstance(type)!;
+                dynamic shortcut = shell.CreateShortcut(link);
+                if (File.Exists(link) && string.Equals((string)shortcut.TargetPath, exe, StringComparison.OrdinalIgnoreCase)) return;
+                shortcut.TargetPath = exe;
+                shortcut.WorkingDirectory = Path.GetDirectoryName(exe) ?? "";
+                shortcut.Description = "Piztki, a living notch for Windows";
+                shortcut.IconLocation = exe + ",0";
+                shortcut.Save();
+            }
+            else if (File.Exists(link))
+            {
+                File.Delete(link);
+            }
+        }
+        catch
+        {
+            // The Start menu entry is a convenience; the app runs fine without it.
+        }
     }
 
     void ApplyStartup()

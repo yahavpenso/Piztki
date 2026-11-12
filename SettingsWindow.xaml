@@ -287,10 +287,20 @@
                     <TextBlock Text="General" Style="{StaticResource PageTitle}"/>
                     <TextBlock Text="Startup" Style="{StaticResource Group}"/>
                     <Border Style="{StaticResource Card}">
+                        <StackPanel>
                         <Grid Style="{StaticResource Row}">
                             <TextBlock Text="Start with Windows" Style="{StaticResource RowTitle}" VerticalAlignment="Center"/>
                             <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding StartWithWindows}" HorizontalAlignment="Right"/>
                         </Grid>
+                        <Border Style="{StaticResource Divider}"/>
+                        <Grid Style="{StaticResource Row}">
+                            <StackPanel Margin="0,0,60,0">
+                                <TextBlock Text="Show in the Start menu" Style="{StaticResource RowTitle}"/>
+                                <TextBlock Text="Adds Piztki to the list of apps, so you can search for it and pin it" Style="{StaticResource RowHint}"/>
+                            </StackPanel>
+                            <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding StartMenuShortcut}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        </StackPanel>
                     </Border>
                     <TextBlock Text="Behavior" Style="{StaticResource Group}"/>
                     <Border Style="{StaticResource Card}">
