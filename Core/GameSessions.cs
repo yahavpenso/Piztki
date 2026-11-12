@@ -183,7 +183,7 @@ public sealed class GameWatch
         int at = exe.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
         if (at < 0) return null;
         string rest = exe[(at + marker.Length)..];
-        int slash = rest.IndexOf('\');
+        int slash = rest.IndexOf(System.IO.Path.DirectorySeparatorChar);
         return slash > 0 ? rest[..slash] : null;
     }
 
