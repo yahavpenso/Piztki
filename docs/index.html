@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Piztki: a friendly little notch for Windows</title>
+<meta name="description" content="Piztki sits at the top of your Windows screen, shows what's playing, sings along with the lyrics, and keeps your timers, tasks, and calendar one hover away.">
+<link rel="icon" href="icon.png">
+<style>
+  :root {
+    --accent: #afa9ec;          /* the mascot's glow; the swatches below change it for the whole page */
+    --bg: #09090d;
+    --panel: #14141a;
+    --card: #17171d;
+    --line: #ffffff17;
+    --text: #f4f3fa;
+    --subtle: #a5a3b6;
+    --on-accent: #15131f;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 "Segoe UI", system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+  a { color: var(--accent); }
+  h1, h2, h3, p { margin: 0; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 22px; }
+
+  /* slow clouds of color behind everything, like the ones behind the lyrics */
+  .sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .sky i { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .33; transition: background 1.2s ease; }
+  .sky i:nth-child(1) { width: 560px; height: 520px; left: -160px; top: -140px; background: var(--accent); animation: drift1 26s ease-in-out infinite alternate; }
+  .sky i:nth-child(2) { width: 520px; height: 480px; right: -180px; top: 28%; background: #5d7fe0; animation: drift2 32s ease-in-out infinite alternate; }
+  .sky i:nth-child(3) { width: 480px; height: 460px; left: 22%; bottom: -220px; background: #d4537e; opacity: .2; animation: drift3 29s ease-in-out infinite alternate; }
+  @keyframes drift1 { to { transform: translate(140px, 90px); } }
+  @keyframes drift2 { to { transform: translate(-150px, -70px); } }
+  @keyframes drift3 { to { transform: translate(110px, -120px); } }
+
+  /* top bar */
+  nav { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(14px); background: #09090dcc; border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; gap: 22px; height: 62px; }
+  nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text); text-decoration: none; margin-right: auto; }
+  nav .brand img { width: 30px; height: 30px; border-radius: 8px; }
+  nav a.link { color: var(--subtle); text-decoration: none; font-size: 15px; transition: color .2s; }
+  nav a.link:hover { color: var(--text); }
+  @media (max-width: 640px) { nav a.link { display: none; } }
+
+  .button { display: inline-block; padding: 13px 28px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 600;
+            text-decoration: none; transition: transform .2s cubic-bezier(.3,1.6,.5,1), filter .2s, background 1.2s ease; }
+  .button:hover { transform: scale(1.05); filter: brightness(1.08); }
+  .button:active { transform: scale(.96); }
+  .button.small { padding: 8px 18px; font-size: 14px; }
+
+  /* hero */
+  .hero { text-align: center; padding: 34px 0 60px; }
+  .pill { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px 0 8px; border-radius: 0 0 20px 20px;
+          background: #0a0a0d; border: 1px solid var(--line); border-top: 0; font-size: 13.5px; font-weight: 600; box-shadow: 0 10px 40px #0008; }
+  .pill svg { width: 40px; height: 32px; }
+  .lyric { background: linear-gradient(90deg, #fff 0 50%, #ffffff80 50% 100%); background-size: 200% 100%; background-position: 100% 0;
+           -webkit-background-clip: text; background-clip: text; color: transparent; animation: sing 4.2s linear infinite; white-space: nowrap; }
+  @keyframes sing { 0% { background-position: 100% 0; } 85%, 100% { background-position: 0 0; } }
+  .bars { display: flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .bars b { width: 3px; border-radius: 2px; background: var(--accent); transition: background 1.2s ease; animation: beat .5s ease-in-out infinite alternate; }
+  .bars b:nth-child(1) { height: 40%; animation-duration: .42s; }
+  .bars b:nth-child(2) { height: 100%; animation-duration: .33s; }
+  .bars b:nth-child(3) { height: 60%; animation-duration: .5s; }
+  @keyframes beat { to { transform: scaleY(.3); } }
+  .bars b { transform-origin: bottom; }
+
+  #hero-mascot { width: 230px; height: 184px; margin: 46px auto 6px; display: block; cursor: pointer; }
+  .pill { max-width: 100%; overflow: hidden; }
+  .hero h1 { font-size: clamp(40px, 7vw, 68px); line-height: 1.08; letter-spacing: -1px; }
+  .hero h1 span { color: var(--accent); transition: color 1.2s ease; }
+  .hero .lead { color: var(--subtle); font-size: 20px; max-width: 640px; margin: 16px auto 0; }
+  .hero .cta { margin-top: 30px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .ghost { display: inline-block; padding: 13px 26px; border-radius: 999px; background: #ffffff12; color: var(--text); text-decoration: none; font-weight: 600; transition: background .2s; }
+  .ghost:hover { background: #ffffff22; }
+  .note { color: var(--subtle); font-size: 14px; margin-top: 14px; }
+
+  /* the mascot */
+  .mascot .float { animation: bob 3.4s ease-in-out infinite; }
+  .mascot .hand-l { animation: bob 3.4s ease-in-out .4s infinite; }
+  .mascot .hand-r { animation: bob 3.4s ease-in-out .9s infinite; }
+  @keyframes bob { 50% { transform: translateY(-3px); } }
+  .mascot .eye { transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; }
+  @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.12); } }
+  .mascot .star { animation: twinkle 2.4s ease-in-out infinite alternate; }
+  .mascot .star:nth-child(2n) { animation-duration: 1.7s; }
+  .mascot .star:nth-child(3n) { animation-duration: 3.1s; }
+  @keyframes twinkle { from { opacity: .25; } to { opacity: .95; } }
+  .mascot .glow { stroke: var(--accent); transition: stroke 1.2s ease; }
+  .mascot .face { transition: transform .16s ease-out; }
+  .mascot .body { transform-box: fill-box; transform-origin: 50% 90%; }
+  .mascot.jump .float { animation: hop .52s ease-out; }
+  .mascot.jump .body { animation: spin .52s ease-in-out; }
+  @keyframes hop { 50% { transform: translateY(-14px); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .mascot .hat { display: none; }
+  .mascot[data-hat="party"] .hat-party, .mascot[data-hat="crown"] .hat-crown, .mascot[data-hat="beanie"] .hat-beanie, .mascot[data-hat="bow"] .hat-bow { display: block; }
+  .mascot .hat .tint { fill: var(--accent); transition: fill 1.2s ease; }
+
+  /* sections */
+  section { padding: 56px 0; }
+  .eyebrow { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; transition: color 1.2s ease; }
+  h2 { font-size: clamp(28px, 4.4vw, 40px); line-height: 1.15; margin-top: 6px; letter-spacing: -.4px; }
+  .sub { color: var(--subtle); max-width: 640px; margin-top: 10px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 26px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; transition: transform .25s cubic-bezier(.3,1.5,.5,1), border-color .25s; }
+  .card:hover { transform: translateY(-4px); border-color: #ffffff33; }
+  .card h3 { font-size: 16.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 9px; }
+  .card h3::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; transition: background 1.2s ease; }
+  .card p { color: var(--subtle); font-size: 15px; }
+
+  /* things slide up into place as they scroll into view */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1); transition-delay: var(--d, 0ms); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* a drawing of the open notch that flips through three of its pages */
+  .demo { margin: 34px auto 0; max-width: 520px; background: #0a0a0d; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 26px 26px;
+          padding: 16px 18px 18px; display: grid; grid-template-columns: 112px 1fr; gap: 14px; box-shadow: 0 24px 70px #000a; position: relative; overflow: hidden; }
+  .demo::after { content: ""; position: absolute; inset: 35% 0 0 0; background: linear-gradient(transparent, var(--accent)); opacity: .22; pointer-events: none; transition: background 1.2s ease; }
+  .demo .left { text-align: center; position: relative; z-index: 1; }
+  .demo .left svg { width: 96px; height: 78px; }
+  .demo .clock { font-size: 23px; font-weight: 600; line-height: 1.2; }
+  .demo .date { font-size: 11.5px; color: var(--subtle); }
+  .demo .right { position: relative; z-index: 1; min-height: 150px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .tabs i { width: 30px; height: 26px; border-radius: 9px; background: #ffffff10; transition: background .4s; }
+  .tabs i.on { background: var(--accent); }
+  .page { position: absolute; inset: 36px 0 0 0; opacity: 0; transform: translateX(22px); transition: opacity .45s ease, transform .45s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  .page.on { opacity: 1; transform: none; }
+  .mini { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mini div { background: #ffffff14; border-radius: 12px; padding: 8px 10px; font-size: 11px; color: var(--subtle); line-height: 1.35; }
+  .mini div b { display: block; color: var(--text); font-size: 13.5px; }
+  .mini .wide { grid-column: span 2; }
+  .lines p { font-size: 15px; font-weight: 600; color: #ffffff66; line-height: 1.9; white-space: nowrap; overflow: hidden; }
+  .lines p.now { color: transparent; }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px 0; font-size: 11px; text-align: center; color: var(--subtle); max-width: 190px; }
+  .cal .today { background: var(--accent); color: var(--on-accent); border-radius: 50%; font-weight: 700; transition: background 1.2s ease; }
+  .event { margin-top: 10px; font-size: 12.5px; }
+  .event b { color: var(--accent); margin-right: 8px; transition: color 1.2s ease; }
+
+  /* make it yours */
+  .lab { display: grid; grid-template-columns: 240px 1fr; gap: 30px; align-items: center; margin-top: 30px; background: var(--panel); border: 1px solid var(--line); border-radius: 24px; padding: 26px 30px; }
+  @media (max-width: 720px) { .lab { grid-template-columns: 1fr; text-align: center; } .demo { grid-template-columns: 1fr; } }
+  .lab svg { width: 220px; height: 176px; cursor: pointer; }
+  .row { margin: 12px 0; }
+  .row > span { display: block; color: var(--subtle); font-size: 13.5px; margin-bottom: 7px; }
+  .swatches, .chips { display: flex; flex-wrap: wrap; gap: 9px; }
+  @media (max-width: 720px) { .swatches, .chips { justify-content: center; } }
+  .swatches button { width: 30px; height: 30px; border-radius: 50%; border: 0; cursor: pointer; outline: 2px solid transparent; outline-offset: 3px; transition: transform .2s cubic-bezier(.3,1.6,.5,1), outline-color .2s; }
+  .swatches button:hover { transform: scale(1.15); }
+  .swatches button.on { outline-color: #fff; }
+  .chips button { border: 0; cursor: pointer; padding: 7px 15px; border-radius: 999px; background: #ffffff14; color: var(--text); font: inherit; font-size: 14px; transition: background .2s, color .2s, transform .2s cubic-bezier(.3,1.6,.5,1); }
+  .chips button:hover { transform: scale(1.06); }
+  .chips button.on { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+
+  /* install */
+  .steps { counter-reset: step; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 26px; }
+  .steps .card::before { counter-increment: step; content: counter(step); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+                         background: var(--accent); color: var(--on-accent); font-weight: 700; margin-bottom: 10px; transition: background 1.2s ease; }
+  .steps .card h3::before { display: none; }
+  code { background: #ffffff14; padding: 1px 7px; border-radius: 6px; font-size: 15px; }
+  .big { text-align: center; padding: 70px 0 30px; }
+  footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 50px; color: var(--subtle); font-size: 14px; text-align: center; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky"><i></i><i></i><i></i></div>
+
+<!-- The mascot is drawn once here and reused everywhere with <use>. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#262146"/><stop offset=".6" stop-color="#16132a"/><stop offset="1" stop-color="#0f0d1e"/>
+    </linearGradient>
+    <!-- kept inside an svg so the browser reads these shapes as drawing, not as page text -->
+    <g id="mascot-art">
+  <g class="float">
+    <g class="hand-l"><circle class="glow" cx="21.5" cy="59.5" r="9.5" fill="#1b1830" stroke-width="1.7"/><circle cx="19" cy="56" r=".8" fill="#fff" opacity=".7"/></g>
+    <g class="hand-r"><circle class="glow" cx="98.5" cy="59.5" r="9.5" fill="#1b1830" stroke-width="1.7"/><circle cx="100" cy="56" r=".8" fill="#fff" opacity=".7"/></g>
+    <g class="body">
+      <rect class="glow" x="32" y="18" width="56" height="56" rx="16" fill="url(#skin)" stroke-width="1.7"/>
+      <g fill="#fff">
+        <circle class="star" cx="40" cy="30" r=".9"/><circle class="star" cx="52" cy="25" r=".7"/><circle class="star" cx="79" cy="40" r=".8" fill="#cecbf6"/>
+        <circle class="star" cx="41" cy="49" r=".7" fill="#f4c0d1"/><circle class="star" cx="38" cy="63" r=".9"/><circle class="star" cx="59" cy="66" r=".8" fill="#cecbf6"/>
+        <circle class="star" cx="80" cy="54" r=".7"/><circle class="star" cx="68" cy="27" r=".6" fill="#f4c0d1"/><circle class="star" cx="73" cy="65" r=".7"/>
+        <path class="star" d="M76 25.4l.9 2.7 2.7.9-2.7.9-.9 2.7-.9-2.7-2.7-.9 2.7-.9z"/>
+        <path class="star" d="M43 35.6l.6 1.8 1.8.6-1.8.6-.6 1.8-.6-1.8-1.8-.6 1.8-.6z" fill="#cecbf6"/>
+      </g>
+      <rect x="39" y="24" width="24" height="6" rx="3" fill="#fff" opacity=".1"/>
+      <g class="face">
+        <rect class="eye" x="44" y="41" width="11" height="6.5" rx="3.25" fill="#fff"/>
+        <rect class="eye" x="65" y="41" width="11" height="6.5" rx="3.25" fill="#fff"/>
+        <path d="M55 55q5 4.5 10 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+      </g>
+      <g class="hat hat-party"><path class="tint" d="M60 3l11 18H49z"/><path d="M55.5 12h9.5l2.5 4H53z" fill="#fff"/><circle cx="60" cy="2.5" r="3" fill="#fac775"/></g>
+      <g class="hat hat-crown"><path d="M47 21V9l7 7 6-10 6 10 7-7v12z" fill="#fac775"/><circle cx="60" cy="16.3" r="1.8" fill="#ed93b1"/></g>
+      <g class="hat hat-beanie"><path class="tint" d="M43 22a17 15 0 0 1 34 0z"/><rect x="41.5" y="19" width="37" height="5" fill="#fff"/><circle cx="60" cy="5.6" r="3.6" fill="#fff"/></g>
+      <g class="hat hat-bow"><path d="M72 20l-10-7v14zM72 20l10-7v14z" fill="#ed93b1" stroke="#1b1830" stroke-width="1.2" stroke-linejoin="round"/><circle cx="72" cy="20" r="3.5" fill="#ed93b1" stroke="#1b1830" stroke-width="1.2"/></g>
+    </g>
+  </g>
+    </g>
+  </defs>
+</svg>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="icon.png" alt="">Piztki</a>
+    <a class="link" href="#features">Features</a>
+    <a class="link" href="#mascot">The mascot</a>
+    <a class="link" href="#install">Install</a>
+    <a class="link" href="#privacy">Privacy</a>
+    <a class="button small" href="https://github.com/yahavpenso/Piztki/releases/latest">Download</a>
+  </div>
+</nav>
+
+<main id="top">
+  <div class="wrap">
+
+    <header class="hero">
+      <div class="pill" aria-hidden="true">
+        <svg class="mascot" viewBox="0 0 120 96"></svg>
+        <span class="lyric">Now I'm singing along with every word</span>
+        <span class="bars"><b></b><b></b><b></b></span>
+      </div>
+
+      <svg class="mascot" id="hero-mascot" viewBox="0 -6 120 102" role="img" aria-label="Piztki, a night-sky cube with floating hands. Click to make it jump."></svg>
+      <h1>A friendly little <span>notch</span><br>for Windows</h1>
+      <p class="lead">Piztki sits at the top of your screen. It shows what's playing, sings along with the lyrics, and keeps your timers, tasks, and calendar one hover away.</p>
+      <div class="cta">
+        <a class="button" href="https://github.com/yahavpenso/Piztki/releases/latest">Download for Windows</a>
+        <a class="ghost" href="#features">See what it does</a>
+      </div>
+      <p class="note">Free. Windows 10 and 11, 64-bit. No account, no ads, no tracking.</p>
+    </header>
+
+    <section>
+      <div class="reveal" style="text-align:center">
+        <p class="eyebrow">Hover, and it opens</p>
+        <h2>Everything in one small place</h2>
+      </div>
+      <div class="demo reveal" aria-hidden="true">
+        <div class="left">
+          <svg class="mascot" viewBox="0 0 120 96"></svg>
+          <div class="clock" id="demo-clock">12:00</div>
+          <div class="date" id="demo-date">Mon, 1 Jan</div>
+        </div>
+        <div class="right">
+          <div class="tabs"><i class="on"></i><i></i><i></i></div>
+          <div class="page on">
+            <div class="mini">
+              <div class="wide">Music<b>Your favorite song</b>The artist you love</div>
+              <div>Timers<b>25:00</b>Ready</div>
+              <div>Tasks<b>2 left</b>Buy milk</div>
+            </div>
+          </div>
+          <div class="page">
+            <div class="lines">
+              <p>The line that was just sung</p>
+              <p class="now lyric">The line being sung right now</p>
+              <p>And the one that comes next</p>
+              <p>Then another after that</p>
+            </div>
+          </div>
+          <div class="page">
+            <div class="cal" id="demo-cal"></div>
+            <div class="event"><b>14:00</b>Dentist</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="reveal">
+        <p class="eyebrow">Music</p>
+        <h2>It listens with you</h2>
+        <p class="sub">Whatever is playing, in any app, shows up in the notch by itself.</p>
+      </div>
+      <div class="grid">
+        <div class="card reveal"><h3>Now playing</h3><p>Song, artist, and cover, with play, pause, and skip. Click or drag the progress bar to jump.</p></div>
+        <div class="card reveal"><h3>Live lyrics</h3><p>The line being sung appears in the notch and in the closed pill, which grows and shrinks to fit it.</p></div>
+        <div class="card reveal"><h3>Sing-along fill</h3><p>The current line fills with light as it is sung. Hebrew and Arabic fill from the right.</p></div>
+        <div class="card reveal"><h3>Lyrics page</h3><p>The whole song in a scrolling column. Click any line to jump there, or scroll by hand with the wheel.</p></div>
+        <div class="card reveal"><h3>Cinema</h3><p>Lyrics on the whole screen: big cover, big words, and clouds in the cover's colors drifting behind.</p></div>
+        <div class="card reveal"><h3>Interlude dots</h3><p>Three dots fill one by one through the intro and the breaks between verses.</p></div>
+        <div class="card reveal"><h3>Song colors</h3><p>The notch glows in the color of the album cover, and melts smoothly into the next song's.</p></div>
+        <div class="card reveal"><h3>Bars on the beat</h3><p>Three little bars follow the bass, the mids, and the treble of what you actually hear.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="reveal">
+        <p class="eyebrow">Get things done</p>
+        <h2>Small tools, always close</h2>
+      </div>
+      <div class="grid">
+        <div class="card reveal"><h3>Focus timer</h3><p>Work in focused stretches with breaks in between, and see how many minutes you focused today.</p></div>
+        <div class="card reveal"><h3>Countdown and stopwatch</h3><p>A plain timer with quick +1 and +5 minute buttons, and a stopwatch, in the same tab.</p></div>
+        <div class="card reveal"><h3>To-do</h3><p>Type a task, press Enter, tick it off. The mascot cheers when you finish one.</p></div>
+        <div class="card reveal"><h3>Calendar with reminders</h3><p>Pick a day, add an event and a time. Piztki reminds you ten minutes before and when it starts.</p></div>
+        <div class="card reveal"><h3>Water</h3><p>Count your glasses toward a daily goal, with a gentle nudge when it's time to drink.</p></div>
+        <div class="card reveal"><h3>Shelf</h3><p>Drag files onto the notch to park them, then drag them out wherever you need them.</p></div>
+        <div class="card reveal"><h3>Notes</h3><p>A few quick notes, right in the notch. They save by themselves.</p></div>
+        <div class="card reveal"><h3>Shortcuts</h3><p>Pin the apps, files, and folders you open most and launch them with one click.</p></div>
+        <div class="card reveal"><h3>Sound mixer</h3><p>A volume slider for every app, so the game can be quiet while the music stays loud.</p></div>
+        <div class="card reveal"><h3>Screenshot</h3><p>Drag over part of the screen. The picture lands on the shelf and is copied too.</p></div>
+        <div class="card reveal"><h3>Downloads</h3><p>See a file while your browser downloads it, and get told the moment it's done.</p></div>
+        <div class="card reveal"><h3>Mic and camera dots</h3><p>A small dot lights up while an app is using your microphone or camera. One click mutes the mic.</p></div>
+        <div class="card reveal"><h3>Focus chart</h3><p>How long you focused on each of the last seven days.</p></div>
+        <div class="card reveal"><h3>Search box</h3><p>Open apps and files, do sums, and convert units and money from one box.</p></div>
+        <div class="card reveal"><h3>Quick timer</h3><p>Press the notch, pull down, and let go on 5, 10, or 25 minutes.</p></div>
+        <div class="card reveal"><h3>Notifications</h3><p>A new message from any app shows in the notch for a few seconds.</p></div>
+        <div class="card reveal"><h3>Color picker</h3><p>Click any pixel on the screen and its color code is copied.</p></div>
+        <div class="card reveal"><h3>Stretch reminders</h3><p>A friendly nudge to stand up after an hour at the screen.</p></div>
+        <div class="card reveal"><h3>Themes</h3><p>Midnight, Neon, Glass, or Pastel. One click changes the whole look.</p></div>
+        <div class="card reveal"><h3>Game summary</h3><p>Fortnite: your place, eliminations, damage, and accuracy, back in the lobby. Roblox: the game, server location, players, and ping when you join, and how long you played.</p></div>
+        <div class="card reveal"><h3>Game mode</h3><p>A tiny strip with the time, CPU, GPU, and memory while you play.</p></div>
+        <div class="card reveal"><h3>Clipboard</h3><p>The last few things you copied, one click away. Kept in memory and forgotten when you quit.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="reveal">
+        <p class="eyebrow">At a glance</p>
+        <h2>Know without looking it up</h2>
+      </div>
+      <div class="grid">
+        <div class="card reveal"><h3>Home</h3><p>One card per feature: the song, the timer, your next task, your next event, all on one page.</p></div>
+        <div class="card reveal"><h3>Weather</h3><p>The temperature in your city, under the clock. Type the city or let Piztki find it.</p></div>
+        <div class="card reveal"><h3>World clocks and the moon</h3><p>Two cities of your choice, tonight's moon phase, and a countdown to a day you're waiting for.</p></div>
+        <div class="card reveal"><h3>System</h3><p>Processor, memory, and network speed, when you want to know why things feel slow.</p></div>
+        <div class="card reveal"><h3>Volume popup</h3><p>Change the volume and the pill shows the level for a moment.</p></div>
+        <div class="card reveal"><h3>Caps Lock and language</h3><p>A quick note when Caps Lock flips, and which keyboard language you just switched to.</p></div>
+        <div class="card reveal"><h3>Battery and internet</h3><p>Plugged in, unplugged, running low, connection lost, back online.</p></div>
+      </div>
+    </section>
+
+    <section id="mascot">
+      <div class="reveal">
+        <p class="eyebrow">The mascot</p>
+        <h2>A little friend lives in there</h2>
+        <p class="sub">Piztki is a night-sky cube with floating hands. It blinks, follows your pointer with its eyes, waves when the notch opens, and dances when music plays. Try it:</p>
+      </div>
+      <div class="lab reveal">
+        <svg class="mascot" id="lab-mascot" viewBox="0 -6 120 102" role="img" aria-label="Piztki preview. Click to make it jump."></svg>
+        <div>
+          <div class="row"><span>Glow color</span>
+            <div class="swatches" id="swatches">
+              <button class="on" style="background:#afa9ec" data-color="#afa9ec" aria-label="Violet"></button>
+              <button style="background:#85b7eb" data-color="#85b7eb" aria-label="Blue"></button>
+              <button style="background:#5dcaa5" data-color="#5dcaa5" aria-label="Mint"></button>
+              <button style="background:#fac775" data-color="#fac775" aria-label="Gold"></button>
+              <button style="background:#ed93b1" data-color="#ed93b1" aria-label="Pink"></button>
+              <button style="background:#f0997b" data-color="#f0997b" aria-label="Coral"></button>
+              <button style="background:#f4f3fa" data-color="#f4f3fa" aria-label="White"></button>
+            </div>
+          </div>
+          <div class="row"><span>Hat</span>
+            <div class="chips" id="hats">
+              <button class="on" data-hat="">None</button><button data-hat="party">Party</button><button data-hat="crown">Crown</button><button data-hat="beanie">Beanie</button><button data-hat="bow">Bow</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card reveal"><h3>Moods</h3><p>Happy after a win, sleepy late at night, a little sad when the battery runs low.</p></div>
+        <div class="card reveal"><h3>Textures</h3><p>Stars, carbon, waves, honeycomb, or plain. Five looks for the cube.</p></div>
+        <div class="card reveal"><h3>Levels</h3><p>Finish tasks, focus sessions, and glasses of water, and Piztki levels up.</p></div>
+        <div class="card reveal"><h3>Poke it</h3><p>Click the cube and it hops and spins. It does that here too.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="reveal">
+        <p class="eyebrow">Make it yours</p>
+        <h2>It fits the way you work</h2>
+      </div>
+      <div class="grid">
+        <div class="card reveal"><h3>Switch anything off</h3><p>Every feature has its own switch. Turn one off and its tab disappears.</p></div>
+        <div class="card reveal"><h3>Any screen</h3><p>Got two monitors? Choose which one the notch lives on.</p></div>
+        <div class="card reveal"><h3>Attached or floating</h3><p>Joined to the top edge of the screen, or a pill floating just below it.</p></div>
+        <div class="card reveal"><h3>Three sizes and a minimal mode</h3><p>Small, medium, or large, and a tiny pill when nothing is playing.</p></div>
+        <div class="card reveal"><h3>Hover or click</h3><p>Open it by touching it with the pointer, or only when you click.</p></div>
+        <div class="card reveal"><h3>Out of the way</h3><p>It slides off the screen for full-screen games and videos, and comes back after.</p></div>
+        <div class="card reveal"><h3>Light</h3><p>About 45 MB of memory. Hidden parts stop animating, so it stays quiet in the background.</p></div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="reveal">
+        <p class="eyebrow">Install</p>
+        <h2>Three steps, nothing to set up</h2>
+      </div>
+      <div class="steps">
+        <div class="card reveal"><h3>Download</h3><p>Get the zip and unzip it anywhere you like.</p></div>
+        <div class="card reveal"><h3>Run it</h3><p>Open <code>Piztki.exe</code>. Nothing else needs to be installed.</p></div>
+        <div class="card reveal"><h3>Say yes to Windows</h3><p>The first time, Windows may say it "protected your PC", as it does for any app outside a store. Choose <b>More info</b>, then <b>Run anyway</b>.</p></div>
+      </div>
+      <p class="note reveal">To quit, right-click the Piztki icon next to the clock. To start it with your PC, turn on "Start with Windows" in its settings.</p>
+    </section>
+
+    <section id="privacy">
+      <div class="reveal">
+        <p class="eyebrow">Privacy</p>
+        <h2>Your stuff stays on your PC</h2>
+        <p class="sub">No account, no ads, no tracking. Your tasks, events, and settings are saved only on your own computer. A few features use free outside services (lyrics, weather, finding your city). Each sends only what it needs, and every one can be switched off. Read the full <a href="privacy.html">privacy policy</a>.</p>
+      </div>
+    </section>
+
+    <div class="big reveal">
+      <svg class="mascot" viewBox="0 0 120 96" style="width:120px;height:96px"></svg>
+      <h2 style="margin-top:10px">Ready when you are</h2>
+      <p style="margin-top:22px"><a class="button" href="https://github.com/yahavpenso/Piztki/releases/latest">Download Piztki</a></p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="wrap">Lyrics from LRCLIB · Weather data by Open-Meteo.com (CC BY 4.0) · Location by GeoJS · Sound analysis with NAudio</div>
+  </footer>
+</main>
+
+<script>
+  // Draw the mascot into every placeholder.
+  const art = document.getElementById('mascot-art');
+  document.querySelectorAll('svg.mascot').forEach(svg => svg.innerHTML = art.innerHTML);
+
+  // Its eyes follow the pointer, a few pixels at most.
+  const mascots = [...document.querySelectorAll('svg.mascot')];
+  let queued = false;
+  addEventListener('pointermove', e => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      for (const svg of mascots) {
+        const box = svg.getBoundingClientRect();
+        if (box.bottom < 0 || box.top > innerHeight) continue;
+        const dx = Math.max(-1, Math.min(1, (e.clientX - (box.left + box.width / 2)) / 260));
+        const dy = Math.max(-1, Math.min(1, (e.clientY - (box.top + box.height / 2)) / 200));
+        svg.querySelector('.face').style.transform = `translate(${dx * 3.2}px, ${dy * 2.4}px)`;
+      }
+    });
+  });
+
+  // Click it and it hops and spins.
+  for (const svg of mascots) {
+    svg.addEventListener('click', () => {
+      svg.classList.remove('jump');
+      void svg.getBoundingClientRect(); // restart the animation
+      svg.classList.add('jump');
+    });
+    svg.addEventListener('animationend', e => { if (e.animationName === 'spin') svg.classList.remove('jump'); });
+  }
+
+  // Glow color: changes the accent of the whole page, like the song colors do in the app.
+  const swatches = document.getElementById('swatches');
+  swatches.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    swatches.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    document.documentElement.style.setProperty('--accent', b.dataset.color);
+    document.getElementById('lab-mascot').dispatchEvent(new Event('click'));
+  });
+
+  // Hats go on the two big mascots.
+  const hats = document.getElementById('hats');
+  hats.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    hats.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    for (const id of ['lab-mascot', 'hero-mascot']) document.getElementById(id).dataset.hat = b.dataset.hat;
+  });
+
+  // Sections slide up as they come into view; cards in a grid follow one another.
+  document.querySelectorAll('.grid, .steps').forEach(grid =>
+    [...grid.children].forEach((card, i) => card.style.setProperty('--d', `${i * 60}ms`)));
+  const seen = new IntersectionObserver(entries => {
+    for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('in'); seen.unobserve(entry.target); }
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => seen.observe(el));
+
+  // The drawing of the open notch: a real clock, this month's calendar, and pages that take turns.
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const tick = () => { const t = new Date(); document.getElementById('demo-clock').textContent = `${pad(t.getHours())}:${pad(t.getMinutes())}`; };
+  tick(); setInterval(tick, 15000);
+  document.getElementById('demo-date').textContent = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+
+  const cal = document.getElementById('demo-cal');
+  let cells = 'SMTWTFS'.split('').map(d => `<span>${d}</span>`).join('');
+  const first = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+  const days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  cells += '<span></span>'.repeat(first);
+  for (let d = 1; d <= days; d++) cells += `<span${d === now.getDate() ? ' class="today"' : ''}>${d}</span>`;
+  cal.innerHTML = cells;
+
+  const pages = [...document.querySelectorAll('.demo .page')], tabs = [...document.querySelectorAll('.demo .tabs i')];
+  let shown = 0;
+  setInterval(() => {
+    shown = (shown + 1) % pages.length;
+    pages.forEach((p, i) => p.classList.toggle('on', i === shown));
+    tabs.forEach((t, i) => t.classList.toggle('on', i === shown));
+  }, 3600);
+</script>
+</body>
+</html>

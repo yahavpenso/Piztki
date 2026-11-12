@@ -1,0 +1,11 @@
+# build output
+bin/
+obj/
+
+# release builds are uploaded to GitHub Releases, not committed
+dist/
+
+# editor and OS clutter
+.vs/
+*.user
+Thumbs.db
