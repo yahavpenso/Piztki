@@ -1,6 +1,6 @@
 # Piztki privacy policy
 
-Last updated: 11 November 2026
+Last updated: 12 November 2026
 
 Piztki is a small notch that sits at the top of your Windows screen. This page explains, in plain words, what it does with your information.
 
