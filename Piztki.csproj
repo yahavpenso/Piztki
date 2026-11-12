@@ -10,7 +10,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>Piztki</AssemblyName>
     <RootNamespace>Piztki</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.0.0-beta.1</Version>
     <Product>Piztki</Product>
     <Description>A friendly little notch for Windows</Description>
     <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>

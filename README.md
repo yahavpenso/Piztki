@@ -4,6 +4,8 @@
 
 Free. No account, no ads, no tracking.
 
+> **Beta.** Piztki is still being built. Things may change, and some may break. If something does, please open an issue.
+
 <p align="center"><img src="docs/media/music.gif" alt="Piztki opening from a pill into the notch" width="640"></p>
 
 ## See it move
@@ -99,7 +101,7 @@ Every feature can be switched off in Settings, and its tab disappears.
 
 ## Install
 
-1. Download `Piztki-1.0.0-win-x64.zip` from the Releases page.
+1. Download `Piztki-1.0.0-beta.1-win-x64.zip` from the [Releases page](https://github.com/yahavpenso/Piztki/releases).
 2. Unzip it anywhere you like.
 3. Run `Piztki.exe`.
 
