@@ -85,8 +85,32 @@ public sealed class MediaService
     void OnSessionEvent(GlobalSystemMediaTransportControlsSession sender, object args)
         => _ui.BeginInvoke(() => { _ = RefreshAsync(); });
 
+    bool _demo;
+
+    /// <summary>
+    /// For the clips in the README: shows a made-up song instead of whatever is really playing,
+    /// so nobody's own music (or a real album cover) ends up in a public picture.
+    /// </summary>
+    public void ShowDemo(string title, string artist, BitmapSource cover, TimeSpan duration, TimeSpan position)
+    {
+        _demo = true;
+        ++_refreshId;
+        Title = title;
+        Artist = artist;
+        IsPlaying = true;
+        HasSession = true;
+        Art = cover;
+        ArtColor = Palette.Dominant(cover);
+        ArtColors = Palette.TopColors(cover, 3);
+        Duration = duration;
+        _position = position;
+        _positionAt = DateTimeOffset.Now;
+        Changed?.Invoke();
+    }
+
     async Task RefreshAsync()
     {
+        if (_demo) return;
         int id = ++_refreshId;
         var session = _session;
 

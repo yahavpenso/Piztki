@@ -1235,6 +1235,520 @@ public partial class NotchWindow
             return;
         }
 
+        // PIZTKI_QUICK=film: one short clip per feature for the README, as numbered frames in one
+        // folder per clip. While a feature is filmed every other feature is switched off, so its
+        // tab is the only one in the row. Everything shown is made up: the song, the tasks, the
+        // messages, the files, the games.
+        if (Environment.GetEnvironmentVariable("PIZTKI_QUICK") == "film")
+        {
+            _s.Sounds = false;
+            _s.MascotMoods = false;
+            _s.NotchAttached = false;
+            _s.MatchSummary = false;
+            UpdateMood();
+
+            async Task Film(string name, double seconds, Action<double>? each = null, Window? of = null)
+            {
+                var frames = new List<BitmapSource>();
+                var clock = System.Diagnostics.Stopwatch.StartNew();
+                while (clock.Elapsed.TotalSeconds < seconds)
+                {
+                    each?.Invoke(clock.Elapsed.TotalSeconds);
+                    frames.Add(FilmFrame(of ?? this));
+                    double wait = frames.Count * (1000.0 / 12) - clock.ElapsedMilliseconds;
+                    await Task.Delay((int)Math.Max(5, wait));
+                }
+                string folder = Path.Combine(dir, name);
+                Directory.CreateDirectory(folder);
+                for (int i = 0; i < frames.Count; i++)
+                {
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(frames[i]));
+                    using var file = File.Create(Path.Combine(folder, $"{i:000}.png"));
+                    encoder.Save(file);
+                }
+            }
+
+            // switches every feature off except the ones named; "home" keeps the Home tab's icon
+            async Task Only(params string[] keep)
+            {
+                bool K(string n) => keep.Contains(n) || keep.Contains("all");
+                TabHome.IsChecked = true;
+                _s.ShowMusic = K("music");
+                _s.ShowLyrics = false; // the made-up song has no lyrics to find; the lyrics clip shows its own
+                _s.ShowFocus = K("focus");
+                _s.ShowTodo = K("todo");
+                _s.ShowWater = K("water");
+                _s.ShowShelf = K("shelf");
+                _s.ShowClipboard = K("clip");
+                _s.ShowSystem = K("system");
+                _s.ShowCalendar = K("cal");
+                _s.ShowNotes = K("notes");
+                _s.ShowSound = false; // lists the apps really running on this PC
+                _s.ShowShortcuts = K("shortcuts");
+                _s.ShowSearch = K("search");
+                TabHome.Visibility = K("home") ? Visibility.Visible : Visibility.Collapsed;
+                _peekUntil = DateTime.Now;
+                UpdateMini();
+                await Task.Delay(500);
+            }
+
+            BitmapSource Cover(Color top, Color bottom, Color moon)
+            {
+                var paint = new DrawingVisual();
+                using (var dc = paint.RenderOpen())
+                {
+                    dc.DrawRectangle(new LinearGradientBrush(top, bottom, 90), null, new Rect(0, 0, 300, 300));
+                    dc.DrawEllipse(new SolidColorBrush(moon), null, new Point(150, 150), 58, 58);
+                    dc.DrawEllipse(new SolidColorBrush(Color.FromRgb((byte)((top.R + bottom.R) / 2), (byte)((top.G + bottom.G) / 2), (byte)((top.B + bottom.B) / 2))), null, new Point(176, 136), 50, 50);
+                }
+                var bitmap = new RenderTargetBitmap(300, 300, 96, 96, PixelFormats.Pbgra32);
+                bitmap.Render(paint);
+                bitmap.Freeze();
+                return bitmap;
+            }
+            var violet = Cover(Color.FromRgb(0x8E, 0x7C, 0xFF), Color.FromRgb(0x2B, 0x3F, 0xB8), Color.FromRgb(0xF1, 0xEE, 0xFF));
+            void Song() => _media.ShowDemo("Paper Lanterns", "The Night Kites", violet, TimeSpan.FromSeconds(204), TimeSpan.FromSeconds(41));
+            Song();
+            SetBars(true);
+            await Task.Delay(1500);
+
+            // ---------- music ----------
+            await Only("music");
+            {
+                TabMusic.IsChecked = true;
+                SetExpanded(false);
+                await Task.Delay(900);
+                var film = Film("music", 7);
+                await Task.Delay(1800);
+                SetExpanded(true);
+                await film;
+            }
+
+            // ---------- lyrics ----------
+            {
+                _s.ShowLyrics = true;
+                await Task.Delay(600);
+                _lyricsFrozenForTest = true;
+                MusicOn.BeginAnimation(OpacityProperty, null);
+                MusicOn.Opacity = 0;
+                MusicOff.Visibility = Visibility.Collapsed;
+                Fx.Appear(LyricsView, dx: 0, dy: 0, ms: 1);
+                LyricsEmpty.Visibility = Visibility.Collapsed;
+                LyricsCol.Visibility = Visibility.Visible;
+                LyricsTitle.Text = "Paper Lanterns · The Night Kites";
+                LyricsView.UpdateLayout();
+                _karaoke.Stop();
+                _lyricsOpen = false;
+                (double at, string text)[] song =
+                {
+                    (1.0, "We lit the paper lanterns one by one"),
+                    (3.6, "And watched them climb above the sleeping town"),
+                    (6.4, "Little lights"),
+                    (8.0, "Carry what we couldn't say out loud"),
+                    (10.8, "Over the rooftops, over the sea"),
+                    (13.4, "Until the morning comes for you and me"),
+                };
+                LyricsCol.SetLyrics(song.Select(l => (TimeSpan.FromSeconds(l.at), l.text)).ToList(), timed: true);
+                await Task.Delay(300);
+                await Film("lyrics", 9, t => LyricsCol.Update(TimeSpan.FromSeconds(0.6 + t * 1.45), fillAsSung: true, force: false));
+                // back to the player page
+                LyricsView.Visibility = Visibility.Collapsed;
+                MusicOn.Opacity = 1;
+                _lyricsFrozenForTest = false;
+                _s.ShowLyrics = false;
+            }
+
+            // ---------- song colors: the glow follows the cover ----------
+            {
+                await Task.Delay(400);
+                var film = Film("song-colors", 8);
+                (string title, string artist, BitmapSource cover)[] songs =
+                {
+                    ("Sea Glass", "Harbor Lights", Cover(Color.FromRgb(0x2E, 0xD3, 0xB7), Color.FromRgb(0x0B, 0x5E, 0x7A), Color.FromRgb(0xE9, 0xFF, 0xF8))),
+                    ("Peach Soda", "Summer Static", Cover(Color.FromRgb(0xFF, 0x8F, 0xB1), Color.FromRgb(0xC2, 0x3B, 0x7A), Color.FromRgb(0xFF, 0xF1, 0xE6))),
+                    ("Golden Hour", "The Slow Trains", Cover(Color.FromRgb(0xFF, 0xC8, 0x57), Color.FromRgb(0xC9, 0x6A, 0x1B), Color.FromRgb(0xFF, 0xF8, 0xE1))),
+                };
+                foreach (var (title, artist, cover) in songs)
+                {
+                    await Task.Delay(1800);
+                    _media.ShowDemo(title, artist, cover, TimeSpan.FromSeconds(187), TimeSpan.FromSeconds(12));
+                }
+                await Task.Delay(1800);
+                Song();
+                await film;
+            }
+
+            // ---------- the mascot dancing on the beat ----------
+            {
+                await Task.Delay(600);
+                BigMascot.Dancing = true;
+                double nextBeat = 0;
+                await Film("mascot", 5, t =>
+                {
+                    if (t < nextBeat) return;
+                    BigMascot.Beat(0.5);
+                    nextBeat += 0.5;
+                });
+            }
+
+            // ---------- timers ----------
+            await Only("focus");
+            {
+                TabFocus.IsChecked = true;
+                await Task.Delay(700);
+                var film = Film("timers", 8);
+                await Task.Delay(500);
+                PomoStart_Click(this, click);
+                await Task.Delay(2600);
+                ModeTimer.IsChecked = true;
+                await Task.Delay(600);
+                QuickAdd_Click(new Button { Tag = "5" }, click);
+                PomoStart_Click(this, click);
+                await Task.Delay(2200);
+                ModeStopwatch.IsChecked = true;
+                await Task.Delay(400);
+                PomoStart_Click(this, click);
+                await film;
+                PomoReset_Click(this, click);
+                ModeTimer.IsChecked = true;
+                PomoReset_Click(this, click);
+                ModeFocus.IsChecked = true;
+                PomoReset_Click(this, click);
+            }
+
+            // ---------- focus chart ----------
+            {
+                var day = DateTime.Now.Date;
+                int[] minutes = { 20, 0, 65, 45, 110, 5, 50 };
+                for (int i = 0; i < 7; i++) _s.FocusHistory[day.AddDays(i - 6).ToString("yyyy-MM-dd")] = minutes[i] * 60;
+                await Task.Delay(500);
+                var film = Film("focus-chart", 5);
+                await Task.Delay(900);
+                ModeStats.IsChecked = true;
+                await film;
+                ModeFocus.IsChecked = true;
+            }
+
+            // ---------- quick timer: pull down from the notch ----------
+            {
+                SetExpanded(false);
+                await Task.Delay(1000);
+                var film = Film("quick-timer", 7);
+                await Task.Delay(900);
+                BeginQuickDrag();
+                await Task.Delay(1100);
+                foreach (int chip in new[] { 0, 1, 2, 1 })
+                {
+                    SetHotChip(chip);
+                    await Task.Delay(650);
+                }
+                EndQuickDrag(start: true);
+                await Task.Delay(700);
+                SetExpanded(false);
+                await film;
+                _countdownRunning = false;
+                PomoReset_Click(this, click);
+                _peekUntil = DateTime.Now;
+                UpdateMini();
+            }
+
+            // ---------- to-do ----------
+            await Only("todo");
+            {
+                SetExpanded(true);
+                TabTodo.IsChecked = true;
+                await Task.Delay(700);
+                var film = Film("todo", 7);
+                await Task.Delay(500);
+                AddTodo("Finish the science project");
+                await Task.Delay(900);
+                AddTodo("Feed the cat");
+                await Task.Delay(900);
+                AddTodo("Practice guitar");
+                await Task.Delay(1100);
+                _s.Todos[0].Done = true;
+                CompleteTodo(_s.Todos[0]);
+                await film;
+            }
+
+            // ---------- calendar ----------
+            await Only("cal");
+            {
+                TabCal.IsChecked = true;
+                await Task.Delay(900);
+                var film = Film("calendar", 7);
+                await Task.Delay(1200);
+                AddEvent("Movie night", DateTime.Now.Date.AddHours(20));
+                await Task.Delay(1800);
+                AddEvent("Football practice", DateTime.Now.Date.AddHours(17).AddMinutes(30));
+                await film;
+            }
+
+            // ---------- water ----------
+            await Only("water");
+            {
+                TabWater.IsChecked = true;
+                await Task.Delay(700);
+                var film = Film("water", 6);
+                for (int i = 0; i < 5; i++)
+                {
+                    await Task.Delay(800);
+                    WaterAdd_Click(this, click);
+                }
+                await film;
+            }
+
+            // ---------- shelf ----------
+            await Only("shelf");
+            {
+                TabShelf.IsChecked = true;
+                string shelf = Path.Combine(dir, "shelf-files");
+                Directory.CreateDirectory(shelf);
+                await Task.Delay(700);
+                var film = Film("shelf", 6.5);
+                foreach (string name in new[] { "holiday-photos.zip", "homework.pdf", "song-idea.mp3", "poster.png" })
+                {
+                    await Task.Delay(1100);
+                    string path = Path.Combine(shelf, name);
+                    File.WriteAllBytes(path, new byte[2048]);
+                    AddToShelf(new[] { path });
+                }
+                await film;
+            }
+
+            // ---------- clipboard ----------
+            await Only("clip");
+            {
+                TabClip.IsChecked = true;
+                _clips.Clear();
+                RebuildClip();
+                await Task.Delay(700);
+                var film = Film("clipboard", 6.5);
+                foreach (string text in new[] { "Meet at the skate park at 5", "#8E7CFF", "https://example.com/recipes/pancakes", "Don't forget the tickets!" })
+                {
+                    await Task.Delay(1100);
+                    AddClip(text);
+                }
+                await film;
+            }
+
+            // ---------- system ----------
+            await Only("system");
+            {
+                TabSystem.IsChecked = true;
+                ApplyDeviceBatteries(new List<(string, int)> { ("Headphones", 80), ("Game controller", 45) });
+                _peekUntil = DateTime.Now;
+                await Task.Delay(900);
+                await Film("system", 6);
+            }
+
+            // ---------- notes ----------
+            await Only("notes");
+            {
+                TabNotes.IsChecked = true;
+                await Task.Delay(700);
+                var film = Film("notes", 7.5);
+                string noteText = "Ideas for the weekend\n- bike ride to the lake\n- fix the treehouse ladder";
+                await Task.Delay(500);
+                for (int i = 1; i <= noteText.Length; i++)
+                {
+                    NoteBox.Text = noteText[..i];
+                    await Task.Delay(70);
+                }
+                await film;
+            }
+
+            // ---------- shortcuts ----------
+            await Only("shortcuts");
+            {
+                TabShortcuts.IsChecked = true;
+                await Task.Delay(700);
+                var film = Film("shortcuts", 6);
+                string windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+                foreach (string path in new[] { Path.Combine(windows, "notepad.exe"), Path.Combine(windows, "System32", "calc.exe"), Path.Combine(windows, "System32", "mspaint.exe"), windows })
+                {
+                    await Task.Delay(1000);
+                    AddShortcuts(new[] { path });
+                }
+                await film;
+            }
+
+            // ---------- search, calculator, converter ----------
+            await Only("search", "home");
+            {
+                TabHome.IsChecked = true;
+                await Task.Delay(800);
+                var film = Film("search", 9);
+                await Task.Delay(600);
+                foreach (string typed in new[] { "128 * 4", "5 km to miles", "72 f to c" })
+                {
+                    for (int i = 1; i <= typed.Length; i++)
+                    {
+                        SearchBox.Text = typed[..i];
+                        await Task.Delay(95);
+                    }
+                    await Task.Delay(1500);
+                    if (typed != "72 f to c") SearchBox.Text = "";
+                    await Task.Delay(250);
+                }
+                await film;
+                SearchBox.Text = "";
+            }
+
+            // ---------- themes: the whole notch, in each of the four looks ----------
+            await Only("all", "home");
+            {
+                TabHome.IsChecked = true;
+                await Task.Delay(900);
+                var film = Film("themes", 8);
+                foreach (var theme in new[] { "Neon", "Glass", "Pastel", "Midnight" })
+                {
+                    await Task.Delay(1700);
+                    _s.Theme = theme;
+                    _s.Accent = NotchThemes.Look(theme).accent;
+                }
+                await film;
+            }
+
+            // ---------- from here on: things that show in the pill ----------
+            await Only();
+            SetExpanded(false);
+            await Task.Delay(1200);
+
+            // downloads
+            {
+                string dl = Path.Combine(dir, "downloads");
+                Directory.CreateDirectory(dl);
+                _downloads.Stop();
+                _downloads.Start(dl);
+                var film = Film("downloads", 8);
+                await Task.Delay(700);
+                string temp = Path.Combine(dl, "Unconfirmed 4821.crdownload");
+                using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    var chunk = new byte[3 << 20];
+                    for (int i = 0; i < 4; i++)
+                    {
+                        stream.Write(chunk);
+                        stream.Flush();
+                        await Task.Delay(900);
+                        _downloads.Poll();
+                        UpdateMini();
+                    }
+                }
+                File.Move(temp, Path.Combine(dl, "holiday-photos.zip"));
+                await Task.Delay(300);
+                _downloads.Poll();
+                await film;
+                _downloads.Stop();
+                _s.ShowDownloads = false; // or its card would linger on Home in the next clips
+                _peekUntil = DateTime.Now;
+                UpdateMini();
+                await Task.Delay(900);
+            }
+
+            // microphone and camera dots
+            {
+                var film = Film("privacy-dots", 7);
+                await Task.Delay(900);
+                SetPrivacy("Voice chat", null, announce: true);
+                await Task.Delay(2600);
+                _peekUntil = DateTime.Now;
+                UpdateMini();
+                await Task.Delay(700);
+                SetPrivacy("Voice chat", "Camera", announce: true);
+                await film;
+                SetPrivacy(null, null, announce: false);
+                _peekUntil = DateTime.Now;
+                UpdateMini();
+                await Task.Delay(900);
+            }
+
+            // notifications from other apps
+            {
+                var film = Film("notifications", 8);
+                await Task.Delay(700);
+                OnNotification("Discord", "Dana", "are you coming tonight? we start at 8");
+                await Task.Delay(3500);
+                OnNotification("WhatsApp", "Mom", "dinner is ready");
+                await film;
+                _peekUntil = DateTime.Now;
+                UpdateMini();
+                await Task.Delay(900);
+            }
+
+            // stretch reminder
+            {
+                var film = Film("stretch", 5.5);
+                await Task.Delay(900);
+                Peek(StretchText(60), celebrate: false, seconds: 4);
+                await film;
+                _peekUntil = DateTime.Now;
+                UpdateMini();
+                await Task.Delay(900);
+            }
+
+            // small status popups
+            {
+                var film = Film("popups", 7);
+                await Task.Delay(700);
+                Peek("Caps Lock on", quiet: true);
+                await Task.Delay(2000);
+                Peek("Caps Lock off", quiet: true);
+                await Task.Delay(2000);
+                SetOffline(true);
+                await film;
+                SetOffline(false);
+                _peekUntil = DateTime.Now;
+                UpdateMini();
+                await Task.Delay(900);
+            }
+
+            // game summary: a Fortnite result, then joining a Roblox game, then the card on Home
+            {
+                _s.MatchSummary = true;
+                TabHome.Visibility = Visibility.Visible;
+                var film = Film("game-summary", 11);
+                await Task.Delay(600);
+                ShowGameResult("Fortnite", "Victory Royale", "6 elims · 958 dmg · 31% hit",
+                    new[] { "Fortnite · Victory Royale · 6 elims · 958 dmg · 31% hit" }, "", DateTime.Now.AddMinutes(-1), fresh: true, won: true);
+                await Task.Delay(3600);
+                _peekUntil = DateTime.Now;
+                UpdateMini();
+                await Task.Delay(500);
+                _robloxPlaying = true;
+                ShowGameResult("Roblox", "Obby Islands", "12.4K playing · by Kite Studio",
+                    new[] { "Roblox · Obby Islands" }, "", DateTime.Now, fresh: true, won: false, say: "Frankfurt, Germany · 28/35 players · ~56 ms");
+                await Task.Delay(3600);
+                _peekUntil = DateTime.Now;
+                SetExpanded(true);
+                await film;
+                _robloxPlaying = false;
+                SetExpanded(false);
+            }
+
+            // game mode: the little strip, which is a window of its own
+            {
+                var strip = new GameHudWindow { Left = -20000, Top = 40 };
+                strip.Show();
+                strip.Line = GameLine();
+                await Task.Delay(1200);
+                strip.Line = GameLine();
+                double next = 1;
+                await Film("game-mode", 5, t =>
+                {
+                    if (t < next) return;
+                    strip.Line = GameLine();
+                    next += 1;
+                }, of: strip);
+                strip.Close();
+            }
+
+            File.WriteAllText(Path.Combine(dir, "film.txt"), "done");
+            return;
+        }
+
         // PIZTKI_QUICK=bpm: what tempo is found in whatever is playing right now, and are the beats evenly spaced?
         if (Environment.GetEnvironmentVariable("PIZTKI_QUICK") == "bpm")
         {
@@ -1654,6 +2168,24 @@ public partial class NotchWindow
     }
 
     /// <summary>Renders a window's own visuals to a PNG over a mid-gray backdrop.</summary>
+    /// <summary>One frame of a clip: the window drawn over a soft night-sky background.</summary>
+    static BitmapSource FilmFrame(Window window)
+    {
+        int w = (int)window.ActualWidth, h = (int)window.ActualHeight;
+        var content = new RenderTargetBitmap(w, h, 96, 96, PixelFormats.Pbgra32);
+        content.Render((Visual)window.Content);
+        var visual = new DrawingVisual();
+        using (var dc = visual.RenderOpen())
+        {
+            dc.DrawRectangle(new LinearGradientBrush(Color.FromRgb(0x1B, 0x1F, 0x3B), Color.FromRgb(0x3A, 0x2A, 0x5E), 55), null, new Rect(0, 0, w, h));
+            dc.DrawImage(content, new Rect(0, 0, w, h));
+        }
+        var final = new RenderTargetBitmap(w, h, 96, 96, PixelFormats.Pbgra32);
+        final.Render(visual);
+        final.Freeze();
+        return final;
+    }
+
     static void Snap(Window window, string path)
     {
         int w = (int)window.ActualWidth, h = (int)window.ActualHeight;

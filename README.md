@@ -4,6 +4,63 @@
 
 Free. No account, no ads, no tracking.
 
+<p align="center"><img src="docs/media/music.gif" alt="Piztki opening from a pill into the notch" width="640"></p>
+
+## See it move
+
+Every clip shows one feature on its own. Everything in them is made up for the demo.
+
+<table>
+<tr>
+<td width="50%" valign="top"><b>Music</b><br><sub>The song playing in any app, with cover, controls, and a progress bar</sub><br><img src="docs/media/music.gif" alt="Music" width="100%"></td>
+<td width="50%" valign="top"><b>Lyrics</b><br><sub>Every line fills with light as it is sung</sub><br><img src="docs/media/lyrics.gif" alt="Lyrics" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Song colors</b><br><sub>The notch glows in the color of the album cover</sub><br><img src="docs/media/song-colors.gif" alt="Song colors" width="100%"></td>
+<td width="50%" valign="top"><b>The mascot</b><br><sub>A little night-sky cube that dances on the beat of your music</sub><br><img src="docs/media/mascot.gif" alt="The mascot" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Timers</b><br><sub>Focus sessions, a countdown, and a stopwatch</sub><br><img src="docs/media/timers.gif" alt="Timers" width="100%"></td>
+<td width="50%" valign="top"><b>Focus chart</b><br><sub>How long you focused on each of the last seven days</sub><br><img src="docs/media/focus-chart.gif" alt="Focus chart" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Quick timer</b><br><sub>Pull down from the notch and let go on 5, 10, or 25 minutes</sub><br><img src="docs/media/quick-timer.gif" alt="Quick timer" width="100%"></td>
+<td width="50%" valign="top"><b>To-do</b><br><sub>A short task list that gives you XP</sub><br><img src="docs/media/todo.gif" alt="To-do" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Calendar</b><br><sub>A month view with your own events and reminders</sub><br><img src="docs/media/calendar.gif" alt="Calendar" width="100%"></td>
+<td width="50%" valign="top"><b>Water</b><br><sub>Count your glasses through the day</sub><br><img src="docs/media/water.gif" alt="Water" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Shelf</b><br><sub>Park files on the notch, drag them out later</sub><br><img src="docs/media/shelf.gif" alt="Shelf" width="100%"></td>
+<td width="50%" valign="top"><b>Clipboard</b><br><sub>The last few things you copied</sub><br><img src="docs/media/clipboard.gif" alt="Clipboard" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>System</b><br><sub>Processor, memory, network speed, and device batteries</sub><br><img src="docs/media/system.gif" alt="System" width="100%"></td>
+<td width="50%" valign="top"><b>Notes</b><br><sub>Quick notes that save by themselves</sub><br><img src="docs/media/notes.gif" alt="Notes" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Shortcuts</b><br><sub>Pin the apps and folders you open most</sub><br><img src="docs/media/shortcuts.gif" alt="Shortcuts" width="100%"></td>
+<td width="50%" valign="top"><b>Search box</b><br><sub>Sums, unit conversions, apps, and files</sub><br><img src="docs/media/search.gif" alt="Search box" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Themes</b><br><sub>Midnight, Neon, Glass, and Pastel</sub><br><img src="docs/media/themes.gif" alt="Themes" width="100%"></td>
+<td width="50%" valign="top"><b>Downloads</b><br><sub>Shows a file while it downloads and tells you when it's done</sub><br><img src="docs/media/downloads.gif" alt="Downloads" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Microphone and camera dots</b><br><sub>A dot while an app is listening or watching</sub><br><img src="docs/media/privacy-dots.gif" alt="Microphone and camera dots" width="100%"></td>
+<td width="50%" valign="top"><b>Notifications</b><br><sub>Messages from other apps show for a few seconds</sub><br><img src="docs/media/notifications.gif" alt="Notifications" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Stretch reminders</b><br><sub>A nudge to stand up after an hour at the screen</sub><br><img src="docs/media/stretch.gif" alt="Stretch reminders" width="100%"></td>
+<td width="50%" valign="top"><b>Popups</b><br><sub>Caps Lock, internet status, and other small changes</sub><br><img src="docs/media/popups.gif" alt="Popups" width="100%"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Game summary</b><br><sub>Your Fortnite result, and the Roblox game and server you joined</sub><br><img src="docs/media/game-summary.gif" alt="Game summary" width="100%"></td>
+<td width="50%" valign="top"><b>Game mode</b><br><sub>Time, CPU, GPU, and memory while a game fills the screen</sub><br><img src="docs/media/game-mode.gif" alt="Game mode" width="100%"></td>
+</tr>
+</table>
+
 ## What it does
 
 - **Music**: the song playing in any app, with cover, controls, and a progress bar you can click

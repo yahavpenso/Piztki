@@ -232,7 +232,7 @@ public partial class NotchWindow : Window
                 SetOffline(_offline);
                 break;
             case nameof(AppSettings.ShowSearch):
-                RebuildHome();
+                ApplyFeatures(); // the search box alone is enough for Home to exist
                 break;
             case nameof(AppSettings.ShowNotifications):
                 _notifications.Reset();
@@ -246,7 +246,7 @@ public partial class NotchWindow : Window
                 break;
             case nameof(AppSettings.MatchSummary):
             case nameof(AppSettings.LastMatchHead):
-                RebuildHome();
+                ApplyFeatures(); // the card can be the only thing on Home, so the Home tab may come or go with it
                 break;
             case nameof(AppSettings.LastMatchFile):
             case nameof(AppSettings.LastMatchDetail):
@@ -331,7 +331,9 @@ public partial class NotchWindow : Window
     void ApplyFeatures()
     {
         bool anyFeature = _s.ShowMusic || _s.ShowFocus || _s.ShowTodo || _s.ShowWater || _s.ShowShelf || _s.ShowClipboard || _s.ShowSystem
-                          || _s.ShowNotes || _s.ShowShortcuts || _s.ShowSound;
+                          || _s.ShowNotes || _s.ShowShortcuts || _s.ShowSound
+                          // these have no tab of their own but do live on Home: the next event, the search box, the last game
+                          || _s.ShowCalendar || _s.ShowSearch || (_s.MatchSummary && _s.LastMatchHead.Length > 0);
         // the first entry is the home tab, which exists as long as there is anything to show on it
         bool[] on = { anyFeature, _s.ShowMusic, _s.ShowFocus, _s.ShowTodo, _s.ShowNotes, _s.ShowWater, _s.ShowShelf, _s.ShowShortcuts,
                       _s.ShowClipboard, _s.ShowSound, _s.ShowSystem, _s.ShowCalendar };
