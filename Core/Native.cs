@@ -62,6 +62,14 @@ internal static class Native
         => SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
     /// <summary>True when another app's window covers the whole primary screen (game, video, slides).</summary>
+    /// <summary>The window in front, when it fills the whole of whichever screen it is on; otherwise zero.</summary>
+    public static IntPtr FullscreenForeground(IntPtr self)
+    {
+        var fg = GetForegroundWindow();
+        if (fg == IntPtr.Zero) return IntPtr.Zero;
+        return IsForegroundFullscreen(self, System.Windows.Forms.Screen.FromHandle(fg).Bounds) ? fg : IntPtr.Zero;
+    }
+
     public static bool IsForegroundFullscreen(IntPtr self, System.Drawing.Rectangle? onScreen = null)
     {
         var fg = GetForegroundWindow();

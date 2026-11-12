@@ -1749,6 +1749,110 @@ public partial class NotchWindow
             return;
         }
 
+        // PIZTKI_QUICK=games: the summary for any game (its name, how long), and Counter-Strike 2's own
+        // report, fed with the same kind of messages the game sends. Nothing is written into the real game folder.
+        if (Environment.GetEnvironmentVariable("PIZTKI_QUICK") == "games")
+        {
+            var log = new List<string>();
+
+            // names
+            string? cfg = Cs2Gsi.FindCfgFolder();
+            log.Add($"counter-strike cfg folder found={cfg != null}");
+            if (cfg != null)
+            {
+                string exe = Path.GetFullPath(Path.Combine(cfg, "..", "..", "bin", "win64", "cs2.exe"));
+                log.Add($"cs2.exe exists={File.Exists(exe)} name='{GameWatch.NameFor(exe, "")}' in a game library={GameWatch.InGameLibrary(exe)}");
+                string common = Path.GetFullPath(Path.Combine(cfg, "..", "..", "..", ".."));
+                foreach (string folder in Directory.GetDirectories(common).Take(8))
+                    log.Add($"   steam folder '{Path.GetFileName(folder)}' -> '{GameWatch.NameFor(Path.Combine(folder, "game.exe"), "")}'");
+            }
+            log.Add($"java game by its window title: '{GameWatch.NameFor(@"C:\Games\jre\bin\javaw.exe", "Minecraft 1.21.4 - Singleplayer")}'");
+            log.Add($"unknown program, no title: '{GameWatch.NameFor(@"D:\Stuff\CoolGame-Win64-Shipping.exe", "")}'  in a library={GameWatch.InGameLibrary(@"D:\Stuff\CoolGame-Win64-Shipping.exe")}");
+            log.Add($"epic path in a library={GameWatch.InGameLibrary(@"C:\Program Files\Epic Games\GTAV\GTA5.exe")}");
+            var watch = new GameWatch();
+            int ended = 0;
+            watch.Ended += _ => ended++;
+            for (int i = 0; i < 3; i++) { watch.Poll(_hwnd); await Task.Delay(200); }
+            log.Add($"three polls of the real desktop: no crash, sessions ended={ended}");
+
+            // a finished session, all the way to the pill and the card
+            OnGameEnded(new GameSession("Subnautica 2", @"E:\x\Subnautica2.exe", DateTime.Now.AddMinutes(-80), DateTime.Now));
+            await Task.Delay(1200);
+            Shot("game_pill");
+            log.Add($"pill '{_peekText}'  card: game='{_s.LastMatchGame}' head='{_s.LastMatchHead}' detail='{_s.LastMatchDetail}'");
+            string before = _s.LastMatchHead;
+            OnGameEnded(new GameSession("Quick Look", @"E:\x\q.exe", DateTime.Now.AddMinutes(-1), DateTime.Now));
+            log.Add($"a one-minute session changes nothing: {_s.LastMatchGame == "Subnautica 2" && _s.LastMatchHead == before}");
+            _peekUntil = DateTime.Now;
+            SetExpanded(true);
+            await Task.Delay(1400);
+            Shot("game_card");
+            SetExpanded(false);
+
+            // Counter-Strike: the settings file, then messages over the real local connection
+            string fakeCfg = Path.Combine(dir, "cfg");
+            Directory.CreateDirectory(fakeCfg);
+            log.Add($"settings file written to a test folder={Cs2Gsi.Install("secret-word", fakeCfg)}");
+            log.Add(File.ReadAllText(Path.Combine(fakeCfg, "gamestate_integration_piztki.cfg")).Replace("\n", " | "));
+            Cs2Gsi.Remove(fakeCfg);
+            log.Add($"removed again={!File.Exists(Path.Combine(fakeCfg, "gamestate_integration_piztki.cfg"))}");
+            log.Add($"map names: {Cs2Gsi.MapName("de_mirage")}, {Cs2Gsi.MapName("de_dust2")}, {Cs2Gsi.MapName("cs_office")}, {Cs2Gsi.MapName("workshop/123/de_cache")}");
+
+            var matches = new List<Cs2Match>();
+            using var gsi = new Cs2Gsi();
+            gsi.MatchEnded += m => Dispatcher.BeginInvoke(() => matches.Add(m));
+            const int port = 47399;
+            log.Add($"listening={gsi.Start("secret-word", port)}");
+            using var http = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+            string Message(string token, string phase, int ct, int t, string who, string team, int k, int d, int a, int mvp) =>
+                "{\"provider\":{\"name\":\"Counter-Strike 2\",\"appid\":730,\"steamid\":\"111\"},\"map\":{\"mode\":\"competitive\",\"name\":\"de_mirage\",\"phase\":\"" + phase +
+                "\",\"round\":21,\"team_ct\":{\"score\":" + ct + "},\"team_t\":{\"score\":" + t + "}},\"player\":{\"steamid\":\"" + who + "\",\"name\":\"x\",\"team\":\"" + team +
+                "\",\"match_stats\":{\"kills\":" + k + ",\"assists\":" + a + ",\"deaths\":" + d + ",\"mvps\":" + mvp + ",\"score\":40}},\"auth\":{\"token\":\"" + token + "\"}}";
+            async Task Send(string body)
+            {
+                using var answer = await http.PostAsync($"http://127.0.0.1:{port}/", new System.Net.Http.StringContent(body, System.Text.Encoding.UTF8, "application/json"));
+                if (!answer.IsSuccessStatusCode) log.Add("the listener answered " + (int)answer.StatusCode);
+            }
+            await Send(Message("secret-word", "live", 9, 12, "111", "T", 17, 11, 4, 3));
+            await Send(Message("wrong-word", "gameover", 0, 99, "111", "T", 99, 99, 99, 99));       // somebody else on this PC: ignored
+            await Task.Delay(200);
+            log.Add($"a message with the wrong word ended matches={matches.Count}");
+            await Send(Message("secret-word", "live", 9, 12, "222", "CT", 30, 2, 1, 6));             // dead and watching a teammate... or an enemy
+            await Send(Message("secret-word", "live", 9, 13, "111", "T", 18, 12, 4, 3));
+            await Send(Message("secret-word", "gameover", 9, 13, "222", "CT", 31, 2, 1, 6));          // the last word comes while watching someone else
+            await Send(Message("secret-word", "gameover", 9, 13, "222", "CT", 31, 2, 1, 6));          // and is repeated
+            await Task.Delay(400);
+            log.Add($"matches ended={matches.Count}" + (matches.Count > 0 ? $" -> {matches[0].Headline} | {matches[0].Detail} | mvps {matches[0].Mvps} | mode {matches[0].Mode}" : ""));
+            await Send("{\"provider\":{\"steamid\":\"111\"},\"player\":{\"steamid\":\"111\"},\"auth\":{\"token\":\"secret-word\"}}"); // back in the menu
+            await Send(Message("secret-word", "live", 0, 0, "111", "CT", 0, 0, 0, 0));
+            await Send(Message("secret-word", "gameover", 5, 13, "111", "CT", 6, 15, 2, 0));
+            await Task.Delay(400);
+            log.Add($"after a second match: ended={matches.Count}" + (matches.Count > 1 ? $" -> {matches[1].Headline} | {matches[1].Detail}" : ""));
+            gsi.Stop();
+
+            if (matches.Count > 0)
+            {
+                _peekUntil = DateTime.Now;
+                OnCs2Match(matches[0]);
+                await Task.Delay(1200);
+                Shot("cs2_pill");
+                log.Add($"cs2 pill '{_peekText}'  card label game='{_s.LastMatchGame}' head='{_s.LastMatchHead}' detail='{_s.LastMatchDetail}'");
+                _peekUntil = DateTime.Now;
+                SetExpanded(true);
+                await Task.Delay(1400);
+                Shot("cs2_card");
+                var strip = new GameHudWindow { Line = matches[0].Line, Left = -20000, Top = 40 };
+                strip.Show();
+                strip.PlaceTopCentre(new System.Drawing.Rectangle(-30000, 0, 1920, 1080));
+                strip.SlideIn();
+                await Task.Delay(900);
+                Snap(strip, Path.Combine(dir, "cs2_strip.png"));
+                strip.Close();
+            }
+            File.WriteAllLines(Path.Combine(dir, "games.txt"), log);
+            return;
+        }
+
         // PIZTKI_QUICK=bpm: what tempo is found in whatever is playing right now, and are the beats evenly spaced?
         if (Environment.GetEnvironmentVariable("PIZTKI_QUICK") == "bpm")
         {

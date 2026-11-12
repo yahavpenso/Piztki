@@ -45,6 +45,8 @@ Deleting that file, or uninstalling Piztki, removes all of it.
 | Your running timer or the playing song's title and artist, only if you connect Discord | To show it as a status on your Discord profile | Yes, to the Discord app on your PC, which shows it to your friends |
 | Your Discord application's ID and secret, and the sign-in Discord gives back | For the Discord status and voice controls. Stored on your PC only | Only to Discord itself, to sign in |
 | The replay files Fortnite saves and the log file Roblox writes on your PC, only while "Game summary" is on | To show how your last match went | No |
+| The name of a game that fills the screen, and when it opened and closed, only while "Game summary" is on | To say which game you played and for how long | No |
+| What Counter-Strike 2 reports about your match (score, map, kills, deaths), only while "Counter-Strike 2 matches" is on | To show how the match went. The game sends it to Piztki on your own PC | No |
 | The number of the Roblox game and server you are in, only while "Game summary" is on | To look up the name, picture, and player counts of that game and server | Yes, to roblox.com. Nothing about you or your account is sent |
 | The internet address of that Roblox game server (not yours), only while "Game summary" is on | To show which city the server is in | Yes, to ipwho.is |
 | The voice channel you are in and who is talking, only with voice controls connected | To show it in the Sound tab. It is not saved | No |

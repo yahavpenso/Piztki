@@ -51,6 +51,7 @@ public partial class NotchWindow
         TickStretch();
         if (_s.MatchSummary && _extrasCount % 3 == 0) _fortnite.Poll();
         if (_s.MatchSummary && _extrasCount % 3 == 1) PollRoblox();
+        if (_s.MatchSummary && _extrasCount % 2 == 0) _games.Poll(_hwnd);
         // a few seconds after start, then once a minute
         if (_s.BatteryAlerts && _extrasCount % 60 == 5) _ = ReadDeviceBatteries();
     }
@@ -69,6 +70,12 @@ public partial class NotchWindow
         _fortnite.Skipped += file => _s.LastMatchFile = file;
         _roblox.Finished += visit => Dispatcher.BeginInvoke(() => OnRobloxLeft(visit));
         _roblox.Joined += visit => Dispatcher.BeginInvoke(() => OnRobloxJoined(visit));
+
+        foreach (string name in NotGames) _games.NotGames.Add(name);
+        foreach (string name in new[] { "FortniteClient-Win64-Shipping", "RobloxPlayerBeta", "Piztki", "devenv", "Code", "claude" }) _games.HandledElsewhere.Add(name);
+        _games.Ended += OnGameEnded;
+        _cs2.MatchEnded += match => Dispatcher.BeginInvoke(() => OnCs2Match(match));
+        ApplyCs2(announce: false);
     }
 
     void OnMatchFinished(FortniteMatch match, bool fresh)
@@ -200,6 +207,55 @@ public partial class NotchWindow
         {
             App.LogError("roblox summary", ex);
         }
+    }
+
+    // ----- any other game: which one, and for how long -----
+
+    readonly GameWatch _games = new();
+
+    void OnGameEnded(GameSession game)
+    {
+        if (!_s.MatchSummary || game.Length.TotalMinutes < 3) return; // opened and closed: not worth a word
+        // Counter-Strike tells its own, fuller story when that is switched on
+        if (_s.Cs2Summary && string.Equals(Path.GetFileNameWithoutExtension(game.Exe), "cs2", StringComparison.OrdinalIgnoreCase)) return;
+        string span = $"{game.Started:HH:mm} to {game.Ended:HH:mm}";
+        ShowGameResult(game.Name, "Played " + game.LengthText, span,
+            new[] { $"{game.Name} · played {game.LengthText} · {span}" }, $"{game.Name}    played {game.LengthText}", game.Ended, fresh: true, won: false);
+    }
+
+    // ----- Counter-Strike 2: the score and your numbers, told by the game itself -----
+
+    readonly Cs2Gsi _cs2 = new();
+
+    /// <summary>Puts Counter-Strike's settings file in place and listens, or takes both away.</summary>
+    void ApplyCs2(bool announce)
+    {
+        if (_selfTest) return;
+        if (_s.Cs2Summary && _s.MatchSummary)
+        {
+            if (_s.Cs2Token.Length == 0) _s.Cs2Token = Guid.NewGuid().ToString("N");
+            if (!Cs2Gsi.Install(_s.Cs2Token))
+            {
+                if (announce) Peek("Counter-Strike 2 wasn't found on this PC", celebrate: false, seconds: 5);
+                _s.Cs2Summary = false;
+                return;
+            }
+            bool listening = _cs2.Start(_s.Cs2Token);
+            if (announce) Peek(listening ? "Counter-Strike 2 is set up. Restart the game if it's open" : "Couldn't listen for Counter-Strike 2", celebrate: false, seconds: 6);
+        }
+        else
+        {
+            _cs2.Stop();
+            if (!_s.Cs2Summary) Cs2Gsi.Remove();
+        }
+    }
+
+    void OnCs2Match(Cs2Match match)
+    {
+        if (!_s.MatchSummary) return;
+        ShowGameResult("Counter-Strike 2", match.Headline, match.Detail,
+            new[] { $"Counter-Strike 2 · {match.Headline} · {match.Map}", $"{match.Kills} kills · {match.Deaths} deaths · {match.Assists} assists · {match.Mvps} MVP" },
+            match.Line, DateTime.Now, fresh: true, won: match.Won);
     }
 
     // ----- shared by every game -----

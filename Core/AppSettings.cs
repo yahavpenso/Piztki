@@ -214,6 +214,8 @@ public class AppSettings : ObservableObject
     bool _gameMode;
     string _theme = "Midnight";
     bool _matchSummary = true;
+    bool _cs2Summary;
+    string _cs2Token = "";
     long _lastMatchWhen;
     string _lastMatchFile = "", _lastMatchHead = "", _lastMatchDetail = "", _lastMatchGame = "Fortnite", _lastMatchIcon = "", _lastMatchMore = "";
 
@@ -237,6 +239,10 @@ public class AppSettings : ObservableObject
     /// <summary>A picture of the game for the card (a file on this PC), and the lines a click on the card shows.</summary>
     public string LastMatchIcon { get => _lastMatchIcon; set => Set(ref _lastMatchIcon, value ?? ""); }
     public string LastMatchMore { get => _lastMatchMore; set => Set(ref _lastMatchMore, value ?? ""); }
+    /// <summary>Counter-Strike 2: ask the game (through Valve's Game State Integration) to report matches to Piztki.</summary>
+    public bool Cs2Summary { get => _cs2Summary; set => Set(ref _cs2Summary, value); }
+    /// <summary>A made-up word shared with the game's settings file, so only the game's own messages are believed.</summary>
+    public string Cs2Token { get => _cs2Token; set => Set(ref _cs2Token, value ?? ""); }
     public string LastMatchHead { get => _lastMatchHead; set => Set(ref _lastMatchHead, value ?? ""); }
     public string LastMatchDetail { get => _lastMatchDetail; set => Set(ref _lastMatchDetail, value ?? ""); }
     /// <summary>The notch's look: Midnight, Neon, Glass, or Pastel.</summary>

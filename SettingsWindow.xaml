@@ -324,9 +324,17 @@
                             <Grid Style="{StaticResource Row}">
                                 <StackPanel Margin="0,0,60,0">
                                     <TextBlock Text="Game summary" Style="{StaticResource RowTitle}"/>
-                                    <TextBlock Text="Fortnite: place, eliminations, and damage after a match (replays must be on). Roblox: the game, server location, players, and ping when you join, and how long you played" Style="{StaticResource RowHint}"/>
+                                    <TextBlock Text="Fortnite: place, eliminations, and damage (replays must be on). Roblox: the game, server, players, and ping. Any other game: which one and how long you played" Style="{StaticResource RowHint}"/>
                                 </StackPanel>
                                 <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding MatchSummary}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Border Style="{StaticResource Divider}"/>
+                            <Grid Style="{StaticResource Row}">
+                                <StackPanel Margin="0,0,60,0">
+                                    <TextBlock Text="Counter-Strike 2 matches" Style="{StaticResource RowTitle}"/>
+                                    <TextBlock Text="After a match: the score, the map, and your kills and deaths. Adds a small settings file to the game, the way Valve provides for this. Restart the game after switching on" Style="{StaticResource RowHint}"/>
+                                </StackPanel>
+                                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Cs2Summary}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                             </Grid>
                             <Border Style="{StaticResource Divider}"/>
                             <Grid Style="{StaticResource Row}">

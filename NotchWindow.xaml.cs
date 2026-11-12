@@ -244,7 +244,13 @@ public partial class NotchWindow : Window
             case nameof(AppSettings.GameMode):
                 UpdateHidden();
                 break;
+            case nameof(AppSettings.Cs2Summary):
+                ApplyCs2(announce: true);
+                break;
             case nameof(AppSettings.MatchSummary):
+                ApplyCs2(announce: false);
+                ApplyFeatures();
+                break;
             case nameof(AppSettings.LastMatchHead):
                 ApplyFeatures(); // the card can be the only thing on Home, so the Home tab may come or go with it
                 break;
@@ -252,6 +258,7 @@ public partial class NotchWindow : Window
             case nameof(AppSettings.LastMatchDetail):
             case nameof(AppSettings.LastMatchGame):
             case nameof(AppSettings.LastMatchWhen):
+            case nameof(AppSettings.Cs2Token):
             case nameof(AppSettings.LastMatchIcon):
             case nameof(AppSettings.LastMatchMore):
                 return; // the card is redrawn by LastMatchHead, which is always set last

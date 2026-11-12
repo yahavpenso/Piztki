@@ -329,7 +329,7 @@ public partial class NotchWindow
         _downloadCardShown = DownloadCardWanted;
         if (_downloadCardShown) Card("download", "\uE896", "Downloads", null, 378, OpenLastDownload);
 
-        if (_s.MatchSummary && _s.LastMatchHead.Length > 0) Card("match", GamePicture() ?? (object)"\uE7FC", _s.LastMatchGame + (_s.LastMatchGame != "Roblox" ? " · last match" : _robloxPlaying ? " · playing now" : " · last game"), null, 186, ShowLastMatch);
+        if (_s.MatchSummary && _s.LastMatchHead.Length > 0) Card("match", GamePicture() ?? (object)"\uE7FC", _s.LastMatchGame + (_s.LastMatchGame is "Fortnite" or "Counter-Strike 2" ? " · last match" : _s.LastMatchGame == "Roblox" && _robloxPlaying ? " · playing now" : " · last game"), null, 186, ShowLastMatch);
 
         // music gets a double-width card: song titles need the room
         if (_s.ShowMusic) Card("music", "", "Music", TabMusic, 186);
