@@ -246,16 +246,6 @@
                             <c:Mascot x:Name="BigMascot" Width="92" Height="76" Accent="{DynamicResource AccentBrush}"
                                       Texture="{Binding Texture}" Hat="{Binding Hat}"/>
                         </Grid>
-                        <StackPanel x:Name="LevelRow" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,1,0,0" ToolTip="Finish tasks, timers, and water to level up">
-                            <TextBlock x:Name="LevelText" Text="Lv 1" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
-                            <Border Width="42" Height="4" CornerRadius="2" Background="#22FFFFFF" Margin="6,1,0,0" VerticalAlignment="Center">
-                                <Border CornerRadius="2" Background="{DynamicResource AccentBrush}" RenderTransformOrigin="0,0.5">
-                                    <Border.RenderTransform>
-                                        <ScaleTransform x:Name="LevelBarS" ScaleX="0"/>
-                                    </Border.RenderTransform>
-                                </Border>
-                            </Border>
-                        </StackPanel>
                         <TextBlock x:Name="ClockText" Text="12:00" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
                         <TextBlock x:Name="DateText" Text="Mon, 1 Jan" FontSize="11" Foreground="{StaticResource SubtleBrush}" HorizontalAlignment="Center"/>
                         <TextBlock x:Name="WeatherText" FontSize="11" Foreground="{StaticResource SubtleBrush}" HorizontalAlignment="Center" Visibility="Collapsed"/>

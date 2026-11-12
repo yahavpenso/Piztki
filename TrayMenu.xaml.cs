@@ -15,8 +15,6 @@ public partial class TrayMenu : Window
         InitializeComponent();
         DataContext = App.Settings;
 
-        StatusText.Text = App.Settings.ShowLevel ? $"Level {App.Settings.Level}" : "A friendly little notch";
-
         bool hidden = App.Notch?.UserHidden == true;
         HideLabel.Text = hidden ? "Show the notch" : "Hide the notch";
         HideIcon.Text = hidden ? "" : ""; // chevron down to bring it back, up to tuck it away

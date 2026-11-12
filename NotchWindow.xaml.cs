@@ -141,7 +141,6 @@ public partial class NotchWindow : Window
             UpdateWater();
             UpdateMusic();
             UpdateClock();
-            UpdateLevel(animate: false);
             RebuildShelf();
             RebuildClip();
             UpdateMood();
@@ -290,10 +289,6 @@ public partial class NotchWindow : Window
             case nameof(AppSettings.Fahrenheit):
                 _ = _weather.RefreshAsync(_s, force: true);
                 break;
-            case nameof(AppSettings.Xp):
-            case nameof(AppSettings.ShowLevel):
-                UpdateLevel(animate: true);
-                break;
             case nameof(AppSettings.MascotMoods):
                 UpdateMood();
                 break;
@@ -308,7 +303,6 @@ public partial class NotchWindow : Window
         var mascot = _s.ShowMascot ? Visibility.Visible : Visibility.Collapsed;
         MiniMascot.Visibility = mascot;
         MascotHost.Visibility = mascot;
-        LevelRow.Visibility = _s.ShowMascot && _s.ShowLevel ? Visibility.Visible : Visibility.Collapsed;
         Mini.Margin = _s.ShowMascot ? new Thickness(5, 0, 14, 0) : new Thickness(14, 0, 14, 0);
 
         Fx.Speed = _s.FastAnimations ? 0.55 : 1;
@@ -1185,7 +1179,6 @@ public partial class NotchWindow : Window
         UpdateMood();
         if (item.Rewarded) return;
         item.Rewarded = true;
-        AddXp(10);
     }
 
     void TodoDelete_Click(object sender, RoutedEventArgs e)
@@ -1259,13 +1252,11 @@ public partial class NotchWindow : Window
 
         if (reachedGoal) Peek("Water goal reached. Nice one");
         else BigMascot.Celebrate();
-        AddXp(reachedGoal ? 20 : 5);
     }
 
     void WaterUndo_Click(object sender, RoutedEventArgs e)
     {
         if (_s.WaterCount == 0) return;
         _s.WaterCount--;
-        _s.Xp -= 5;
     }
 }

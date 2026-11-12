@@ -97,8 +97,6 @@ public class AppSettings : ObservableObject
     bool _mascotMoods = true;
     string _texture = "Stars";
     string _hat = "None";
-    bool _showLevel = true;
-    int _xp;
 
     public bool ShowShelf { get => _showShelf; set => Set(ref _showShelf, value); }
     public bool ShowClipboard { get => _showClipboard; set => Set(ref _showClipboard, value); }
@@ -118,8 +116,6 @@ public class AppSettings : ObservableObject
     public bool MascotMoods { get => _mascotMoods; set => Set(ref _mascotMoods, value); }
     public string Texture { get => _texture; set => Set(ref _texture, value ?? "Stars"); }
     public string Hat { get => _hat; set => Set(ref _hat, value ?? "None"); }
-    public bool ShowLevel { get => _showLevel; set => Set(ref _showLevel, value); }
-    public int Xp { get => _xp; set => Set(ref _xp, Math.Max(0, value)); }
 
     // ----- added with the display / style / popups / calendar batch -----
 
@@ -286,23 +282,6 @@ public class AppSettings : ObservableObject
 
     /// <summary>Files parked on the shelf (full paths).</summary>
     public ObservableCollection<string> Shelf { get; set; } = new();
-
-    // Levels get steadily further apart: 50 XP to reach level 2, 100 more for 3, 150 more for 4...
-    public static int LevelFor(int xp) => 1 + (int)Math.Floor((Math.Sqrt(1 + 8 * xp / 50.0) - 1) / 2);
-    static int XpAtLevel(int level) => 50 * (level - 1) * level / 2;
-
-    [JsonIgnore]
-    public int Level => LevelFor(_xp);
-
-    [JsonIgnore]
-    public double LevelProgress
-    {
-        get
-        {
-            int level = Level, start = XpAtLevel(level), next = XpAtLevel(level + 1);
-            return Math.Clamp((_xp - start) / (double)(next - start), 0, 1);
-        }
-    }
 
     public bool ShowFocus { get => _showFocus; set => Set(ref _showFocus, value); }
     public bool ShowTodo { get => _showTodo; set => Set(ref _showTodo, value); }

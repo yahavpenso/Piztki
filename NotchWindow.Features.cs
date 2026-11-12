@@ -103,7 +103,6 @@ public partial class NotchWindow
                     _pomoLeft = TimeSpan.FromMinutes(_s.BreakMinutes);
                     _pomoRunning = _s.AutoStartBreak;
                     Peek("Focus done. Take a break");
-                    AddXp(25);
                 }
                 else
                 {
@@ -415,29 +414,6 @@ public partial class NotchWindow
             _stats.Update();
             Set("system", $"{Math.Round(_stats.Cpu * 100)}%", "CPU");
             Set("net", _offline ? "Offline" : SystemStats.Speed(_stats.DownBytesPerSec), _offline ? "No connection" : "up " + SystemStats.Speed(_stats.UpBytesPerSec));
-        }
-    }
-
-    // =====================================================================
-    // Levels
-    // =====================================================================
-
-    void AddXp(int amount)
-    {
-        int before = _s.Level;
-        _s.Xp += amount; // UpdateLevel runs through the settings change
-        int after = _s.Level;
-        if (after > before && _s.ShowLevel && _s.ShowMascot) Peek($"Level {after}. Piztki is growing");
-    }
-
-    void UpdateLevel(bool animate)
-    {
-        LevelText.Text = "Lv " + _s.Level;
-        if (animate) Fx.Animate(LevelBarS, ScaleTransform.ScaleXProperty, _s.LevelProgress, 500);
-        else
-        {
-            LevelBarS.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-            LevelBarS.ScaleX = _s.LevelProgress;
         }
     }
 

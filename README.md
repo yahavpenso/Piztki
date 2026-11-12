@@ -95,7 +95,7 @@ Every clip shows one feature on its own. Everything in them is made up for the d
 - **Discord**: your focus timer or song as a status on your profile, plus mute, deafen, and who is talking (needs your own free Discord application)
 - **Weather**: the temperature in your city, under the clock
 - **Popups**: volume, Caps Lock, keyboard language, battery, and internet status
-- **The mascot**: moods, textures, hats, glow colors, and levels that grow as you get things done
+- **The mascot**: moods, textures, hats, and glow colors
 
 Every feature can be switched off in Settings, and its tab disappears.
 

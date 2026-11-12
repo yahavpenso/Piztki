@@ -731,14 +731,6 @@
                                 </StackPanel>
                                 <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding MascotMoods}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                             </Grid>
-                            <Border Style="{StaticResource Divider}"/>
-                            <Grid Style="{StaticResource Row}">
-                                <StackPanel Margin="0,0,60,0">
-                                    <TextBlock Text="Levels" Style="{StaticResource RowTitle}"/>
-                                    <TextBlock Text="Piztki levels up as you finish tasks, focus sessions, and water" Style="{StaticResource RowHint}"/>
-                                </StackPanel>
-                                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding ShowLevel}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                            </Grid>
                         </StackPanel>
                     </Border>
                 </StackPanel>

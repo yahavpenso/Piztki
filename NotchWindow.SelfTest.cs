@@ -2161,13 +2161,9 @@ public partial class NotchWindow
         await Task.Delay(3500);
         Shot("weather_under_clock");
 
-        // level up
-        AddXp(60);
-        await Task.Delay(900);
-        Shot("level_up_open");
         SetExpanded(false);
         await Task.Delay(700);
-        Shot("level_up_peek");
+        Shot("closed_peek");
 
         // fewer tabs
         SetExpanded(true);

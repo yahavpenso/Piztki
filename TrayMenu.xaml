@@ -58,7 +58,7 @@
                           Texture="{Binding Texture}" Hat="{Binding Hat}"/>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0,0,0">
                     <TextBlock Text="Piztki" FontSize="14.5" FontWeight="SemiBold"/>
-                    <TextBlock x:Name="StatusText" Text="Level 1" FontSize="11.5" Foreground="{StaticResource SubtleBrush}"/>
+                    <TextBlock x:Name="StatusText" Text="A friendly little notch" FontSize="11.5" Foreground="{StaticResource SubtleBrush}"/>
                 </StackPanel>
             </Grid>
 
