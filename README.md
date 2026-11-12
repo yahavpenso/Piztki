@@ -101,7 +101,7 @@ Every feature can be switched off in Settings, and its tab disappears.
 
 ## Install
 
-1. Download `Piztki-1.0.0-beta.1-win-x64.zip` from the [Releases page](https://github.com/yahavpenso/Piztki/releases).
+1. Download `Piztki-1.0.0-beta.2-win-x64.zip` from the [Releases page](https://github.com/yahavpenso/Piztki/releases).
 2. Unzip it anywhere you like.
 3. Run `Piztki.exe`.
 
