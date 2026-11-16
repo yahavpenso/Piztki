@@ -169,9 +169,146 @@
     .reveal { opacity: 1; transform: none; }
   }
 </style>
+<!--brand-meta--><meta name="theme-color" content="#09090d"><meta property="og:type" content="website"><meta property="og:title" content="Piztki: a friendly little notch for Windows"><meta property="og:description" content="A friendly notch at the top of your Windows screen: music, live lyrics, timers, tasks and your calendar one hover away. Free, no account."><meta property="og:image" content="https://yahavpenso.github.io/Piztki/social.png"><meta property="og:url" content="https://yahavpenso.github.io/Piztki/"><meta name="twitter:card" content="summary_large_image"><!--/brand-meta-->
+<style id="brand-css">
+  /* ===== shared Pitzki family look (same on all three sites) ===== */
+  :root { --b-notch: #afa9ec; --b-cards: #5dcaa5; --b-line: #ffffff14; --b-line2: #ffffff26; --b-faint: #6d6b7d; --b-ease: cubic-bezier(.2,.8,.2,1); }
+  body { -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--accent); color: #15131f; }
+  .b-grain { position: fixed; inset: -50%; z-index: -1; pointer-events: none; opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .b-family { position: relative; z-index: 31; background: #000; border-bottom: 1px solid var(--b-line); font-size: 13px; }
+  .b-family .b-in { max-width: 1160px; margin: 0 auto; padding: 0 22px; display: flex; align-items: center; gap: 4px; height: 38px; overflow-x: auto; scrollbar-width: none; }
+  .b-family .b-in::-webkit-scrollbar { display: none; }
+  .b-family a { color: #a3a1b4; text-decoration: none; padding: 5px 12px; border-radius: 999px; white-space: nowrap; display: flex; align-items: center; gap: 7px; transition: color .2s, background .2s; }
+  .b-family a:hover { color: #fff; background: #ffffff10; }
+  .b-family a.here { color: #fff; background: #ffffff14; }
+  .b-family a i { width: 7px; height: 7px; border-radius: 50%; }
+  .b-family .sp { margin-left: auto; }
+  nav { backdrop-filter: saturate(1.6) blur(18px) !important; -webkit-backdrop-filter: saturate(1.6) blur(18px); border-bottom-color: transparent !important; transition: border-color .3s, background .3s; }
+  nav.stuck { border-bottom-color: var(--b-line) !important; }
+  nav a.link { position: relative; }
+  nav a.link::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; border-radius: 2px; background: var(--accent); transform: scaleX(0); transition: transform .3s var(--b-ease); }
+  nav a.link.on { color: var(--text); }
+  nav a.link.on::after { transform: scaleX(1); }
+  .hero h1 { font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-size: clamp(44px, 8vw, 92px) !important; line-height: 1.02 !important; letter-spacing: -.045em !important; font-weight: 700; }
+  .hero h1 span { background: linear-gradient(100deg, var(--b-notch) 10%, #d8d4ff 40%, var(--b-cards) 75%); -webkit-background-clip: text; background-clip: text; color: transparent !important;
+                  background-size: 200% 100%; animation: b-sheen 9s ease-in-out infinite alternate; }
+  @keyframes b-sheen { to { background-position: 100% 0; } }
+  .hero .lead { font-size: clamp(18px, 2.2vw, 21px) !important; line-height: 1.5; }
+  h2 { font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-size: clamp(32px, 5vw, 54px) !important; line-height: 1.06 !important; letter-spacing: -.035em !important; font-weight: 700; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; letter-spacing: 1.6px !important; }
+  .eyebrow::before { content: ""; width: 18px; height: 2px; border-radius: 2px; background: currentColor; }
+  .sub { font-size: 18px; line-height: 1.55; }
+  section { padding-top: 84px !important; padding-bottom: 84px !important; }
+  .button { transition: transform .25s cubic-bezier(.3,1.5,.5,1), filter .2s, box-shadow .3s !important; }
+  .button:hover { transform: translateY(-2px) scale(1.03) !important; box-shadow: 0 10px 30px -8px var(--accent); }
+  .ghost { border: 1px solid var(--b-line); }
+  .card, .tile { border-radius: 20px; }
+  .b-progress { position: fixed; left: 0; top: 0; height: 2px; width: 100%; z-index: 60; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--b-notch), var(--b-cards)); pointer-events: none; }
+  .b-top { position: fixed; right: 20px; bottom: 20px; z-index: 50; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--b-line2); background: #15151bcc; backdrop-filter: blur(10px);
+           color: #fff; font-size: 18px; cursor: pointer; opacity: 0; transform: translateY(14px); pointer-events: none; transition: opacity .3s, transform .3s cubic-bezier(.3,1.5,.5,1); }
+  .b-top.show { opacity: 1; transform: none; pointer-events: auto; }
+  footer.b-footer { border-top: 1px solid var(--b-line); margin-top: 90px; padding: 56px 0 40px; color: #a3a1b4; font-size: 14px; text-align: left; background: #000000a0; }
+  .b-footer .b-in { max-width: 1160px; margin: 0 auto; padding: 0 22px; }
+  .b-cols { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 30px; }
+  @media (max-width: 760px) { .b-cols { grid-template-columns: 1fr 1fr; } .b-cols > :first-child { grid-column: span 2; } }
+  .b-cols h4 { color: #fff; font-size: 13.5px; margin: 0 0 12px; font-weight: 650; }
+  .b-cols a { display: block; color: #a3a1b4; text-decoration: none; padding: 4px 0; transition: color .2s; }
+  .b-cols a:hover { color: #fff; }
+  .b-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 650; font-size: 17px; }
+  .b-brand img { width: 30px; height: 30px; border-radius: 8px; }
+  .b-blurb { margin-top: 12px; max-width: 300px; line-height: 1.55; }
+  .b-credits { margin-top: 34px; color: var(--b-faint); font-size: 13px; }
+  .b-bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--b-line); margin-top: 18px; padding-top: 22px; color: var(--b-faint); font-size: 13px; }
+  @media (prefers-reduced-motion: reduce) { .hero h1 span { animation: none; } }
+</style>
+<style id="kit-css">
+  .k-badge { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border-radius: 999px; border: 1px solid #ffffff26; background: #ffffff0a;
+             font-size: 13.5px; color: var(--subtle); text-decoration: none; margin-bottom: 18px; transition: border-color .2s, background .2s; }
+  .k-badge:hover { border-color: #ffffff40; background: #ffffff12; }
+  .k-badge b { background: linear-gradient(90deg, #afa9ec, #5dcaa5); color: #15131f; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; letter-spacing: .3px; }
+  .k-stats { display: grid; grid-template-columns: repeat(4, 1fr); margin: 30px auto 0; max-width: 940px; border-top: 1px solid #ffffff14; border-bottom: 1px solid #ffffff14; }
+  .k-stats div { padding: 26px 10px; text-align: center; }
+  .k-stats div + div { border-left: 1px solid #ffffff14; }
+  .k-stats b { display: block; font-size: clamp(30px, 4.4vw, 46px); font-weight: 700; letter-spacing: -.03em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .k-stats span { color: var(--subtle); font-size: 14px; }
+  @media (max-width: 640px) { .k-stats { grid-template-columns: 1fr 1fr; } .k-stats div:nth-child(3) { border-left: 0; } .k-stats div:nth-child(n+3) { border-top: 1px solid #ffffff14; } }
+  .k-marquee { margin-top: 48px; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+  .k-marquee p { text-align: center; color: #6d6b7d; font-size: 12.5px; letter-spacing: 1.6px; text-transform: uppercase; margin-bottom: 16px; }
+  .k-track { display: flex; gap: 12px; width: max-content; animation: k-slide 40s linear infinite; }
+  .k-marquee:hover .k-track { animation-play-state: paused; }
+  @keyframes k-slide { to { transform: translateX(-50%); } }
+  .k-track span { padding: 9px 18px; border-radius: 999px; border: 1px solid #ffffff14; background: #ffffff08; color: var(--subtle); font-size: 15px; white-space: nowrap; font-weight: 500; }
+  .k-bento { display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: minmax(190px, auto); gap: 16px; margin-top: 40px; }
+  .k-tile { background: linear-gradient(180deg, #ffffff08, transparent 50%), #15151b; border: 1px solid #ffffff14; border-radius: 26px; padding: 26px; position: relative; overflow: hidden;
+            transition: transform .35s cubic-bezier(.3,1.5,.5,1), border-color .3s; }
+  .k-tile:hover { transform: translateY(-4px); border-color: #ffffff26; }
+  .k-tile h3 { font-size: 21px; letter-spacing: -.015em; margin: 0; }
+  .k-tile p { color: var(--subtle); font-size: 15.5px; margin-top: 8px; max-width: 420px; }
+  .k-t1 { grid-column: span 4; } .k-t2, .k-t3, .k-t4, .k-t5 { grid-column: span 2; } .k-t6 { grid-column: span 6; }
+  @media (max-width: 900px) { .k-bento { grid-template-columns: 1fr 1fr; } .k-t1, .k-t6 { grid-column: span 2; } .k-t2, .k-t3, .k-t4, .k-t5 { grid-column: span 1; } }
+  @media (max-width: 560px) { .k-bento { grid-template-columns: 1fr; } .k-bento > * { grid-column: span 1 !important; } }
+  .k-eq { display: flex; gap: 6px; align-items: flex-end; height: 70px; margin-top: 24px; }
+  .k-eq b { width: 10px; border-radius: 5px; background: linear-gradient(#afa9ec, #5dcaa5); animation: k-eq 1s ease-in-out infinite alternate; transform-origin: bottom; }
+  @keyframes k-eq { from { transform: scaleY(.25); } }
+  .k-lock { width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; background: #ffffff10; border: 1px solid #ffffff26; margin-bottom: 16px; }
+  .k-lock svg { width: 28px; height: 28px; color: var(--accent); }
+  .k-num { font-size: 60px; font-weight: 700; letter-spacing: -.04em; line-height: 1; margin-top: 16px; background: linear-gradient(90deg, #afa9ec, #5dcaa5); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .k-meter { margin-top: 18px; display: grid; gap: 10px; }
+  .k-meter div { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; font-size: 13.5px; color: var(--subtle); }
+  .k-meter i { height: 8px; border-radius: 4px; background: #ffffff12; position: relative; overflow: hidden; }
+  .k-meter i::after { content: ""; position: absolute; inset: 0; width: var(--w); border-radius: 4px; background: var(--c, var(--accent)); transform-origin: left; transform: scaleX(0); transition: transform 1.2s cubic-bezier(.2,.8,.2,1); }
+  .k-tile.in .k-meter i::after { transform: scaleX(1); }
+  .k-sib { display: flex; flex-direction: column; justify-content: space-between; gap: 18px; background: radial-gradient(90% 140% at 100% 0%, var(--sib) 0, transparent 55%), #15151b; }
+  .k-sib::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 90% at 100% 0%, var(--sib), transparent 60%); opacity: .25; pointer-events: none; }
+  .k-sib a.k-go { align-self: flex-start; display: inline-flex; gap: 8px; align-items: center; padding: 11px 22px; border-radius: 999px; background: var(--sib); color: #15131f; font-weight: 600; text-decoration: none;
+                  transition: transform .25s cubic-bezier(.3,1.5,.5,1); position: relative; }
+  .k-sib a.k-go:hover { transform: translateY(-2px) scale(1.03); }
+  /* the closing "Ready when you are" becomes a big card */
+  .big { margin: 40px 0 0; border-radius: 36px; padding: 80px 30px !important; position: relative; overflow: hidden; border: 1px solid #ffffff14;
+         background: radial-gradient(80% 120% at 0% 0%, #afa9ec33, transparent 60%), radial-gradient(80% 120% at 100% 100%, #5dcaa533, transparent 60%), #111116; }
+  .big h2 { font-size: clamp(38px, 6vw, 72px) !important; }
+  .k-family-link { margin-top: 18px; font-size: 15px; color: var(--subtle); }
+  .k-family-link a { color: var(--text); font-weight: 600; text-decoration: none; }
+  .k-family-link a:hover { text-decoration: underline; }
+</style>
+<style id="clips-css">
+  video.clip { display: block; max-width: 100%; }
+  .waiting video { opacity: 0; }
+  .tile video, .shot video, .two video { transition: opacity .5s ease; }
+  .tile video { display: block; width: 100%; height: auto; background: #1d1b33; }
+  .shot video, .two video, .scene video { display: block; width: 100%; }
+  .c-pitzki .stage video { position: absolute; inset: -6px -8px; width: calc(100% + 16px); height: calc(100% + 12px); object-fit: cover; border-radius: 10px; animation: rollIn .4s; }
+  .pz-view video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; animation: rollIn .4s; }
+</style>
+<style id="home-css">
+  .b-home { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px 7px 10px; border-radius: 999px; border: 1px solid #ffffff26; background: #ffffff0c;
+            color: var(--text) !important; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap; transition: background .2s, border-color .2s, transform .25s cubic-bezier(.3,1.5,.5,1); }
+  .b-home:hover { background: #ffffff1a; border-color: #ffffff40; transform: translateX(-2px); }
+  .b-home i { width: 18px; height: 18px; border-radius: 6px; background: linear-gradient(135deg, #afa9ec, #5dcaa5); display: grid; place-items: center; font-style: normal; font-size: 12px; color: #15131f; font-weight: 800; }
+  nav .brand { margin-right: 0 !important; white-space: nowrap; }
+  nav .b-home { margin-right: auto; margin-left: 4px; }
+  @media (max-width: 640px) { .b-home span { display: none; } .b-home { padding: 7px 9px; } }
+  /* the hero reads like the home site's: words first, Pitzki underneath */
+  .hero #hero-mascot { width: 140px !important; height: 118px !important; margin: 38px auto 0 !important; }
+  .hero > .pill { display: flex !important; width: fit-content; margin: 0 auto 22px !important; }
+  .hero .k-badge { display: flex; width: fit-content; margin: 0 auto 18px; }
+  .hero .button svg { width: 16px; height: 16px; margin-right: 8px; vertical-align: -2px; }
+</style>
+<style id="scroll-css">
+  /* a scrollbar that fits the site: thin, dark, with Pitzki's colours */
+  html { scrollbar-width: thin; scrollbar-color: #6f68b8 #0b0b10; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #07070a; }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #afa9ec, #5dcaa5); border-radius: 10px; border: 3px solid #07070a; }
+  ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #c4bff5, #7fdcbb); border-width: 2px; }
+  ::-webkit-scrollbar-corner { background: #07070a; }
+</style>
+<style id="demo-note-css">.demo-note{color:#6d6b7d;font-size:12.5px;text-align:center;margin:10px 0 0;font-style:italic}</style>
 </head>
 <body>
-
+<!--brand-top--><div class="b-progress" id="b-progress"></div><div class="b-grain"></div><div class="b-family"><div class="b-in"><a href="https://yahavpenso.github.io/"><i style="background:linear-gradient(90deg,#afa9ec,#5dcaa5)"></i>Pitzki home</a><a class="here" href="https://yahavpenso.github.io/Piztki/"><i style="background:#afa9ec"></i>Pitzki notch</a><a href="https://yahavpenso.github.io/PitzkiWidgets/"><i style="background:#5dcaa5"></i>Pitzki Widgets</a><a class="sp" href="https://github.com/yahavpenso">GitHub</a></div></div><!--/brand-top-->
 <div class="sky"><i></i><i></i><i></i></div>
 
 <!-- The mascot is drawn once here and reused everywhere with <use>. -->
@@ -213,6 +350,9 @@
 <nav>
   <div class="wrap">
     <a class="brand" href="#top"><img src="icon.png" alt="">Piztki</a>
+    <!--home-pill--><a class="b-home" href="https://yahavpenso.github.io/" title="Back to the Pitzki home page"><i>←</i><span>Pitzki home</span></a><!--/home-pill-->
+    <a class="link" href="#tour">Tour</a>
+    <a class="link" href="#action">In action</a>
     <a class="link" href="#features">Features</a>
     <a class="link" href="#mascot">The mascot</a>
     <a class="link" href="#install">Install</a>
@@ -230,52 +370,261 @@
         <span class="lyric">Now I'm singing along with every word</span>
         <span class="bars"><b></b><b></b><b></b></span>
       </div>
-
-      <svg class="mascot" id="hero-mascot" viewBox="0 -6 120 102" role="img" aria-label="Piztki, a night-sky cube with floating hands. Click to make it jump."></svg>
+      <!--kit-badge--><a class="k-badge" href="#features"><b>NEW</b>Game tabs for Fortnite, CS2 and Roblox →</a><!--/kit-badge-->
       <h1>A friendly little <span>notch</span><br>for Windows</h1>
       <p class="lead">Piztki sits at the top of your screen. It shows what's playing, sings along with the lyrics, and keeps your timers, tasks, and calendar one hover away.</p>
       <div class="cta">
-        <a class="button" href="https://github.com/yahavpenso/Piztki/releases">Download for Windows</a>
+        <a class="button" href="https://github.com/yahavpenso/Piztki/releases"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m-4.5-4.5L10 13l4.5-4.5M4 17h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Download for Windows</a>
         <a class="ghost" href="#features">See what it does</a>
       </div>
       <p class="note">Free. Windows 10 and 11, 64-bit. No account, no ads, no tracking.</p>
+      <svg class="mascot" id="hero-mascot" viewBox="0 -6 120 102" role="img" aria-label="Piztki, a night-sky cube with floating hands. Click to make it jump."></svg>
     </header>
-
-    <section>
+    <!--kit-hero--><div class="k-stats reveal"><div><b><span data-kcount="30" style="color:inherit;font-size:inherit">0</span>+</b><span>features</span></div><div><b><span data-kcount="4" style="color:inherit;font-size:inherit">0</span></b><span>themes</span></div><div><b><span data-kcount="45" style="color:inherit;font-size:inherit">0</span> MB</b><span>of memory</span></div><div><b>$<span data-kcount="0" style="color:inherit;font-size:inherit">0</span></b><span>forever</span></div></div><div class="k-marquee reveal"><p>Works with what you already use</p><div class="k-track"><span>Spotify</span><span>YouTube Music</span><span>Apple Music</span><span>Any music app</span><span>Fortnite</span><span>Counter-Strike 2</span><span>Roblox</span><span>Fall Guys</span><span>Steam</span><span>iRacing</span><span>Spotify</span><span>YouTube Music</span><span>Apple Music</span><span>Any music app</span><span>Fortnite</span><span>Counter-Strike 2</span><span>Roblox</span><span>Fall Guys</span><span>Steam</span><span>iRacing</span></div></div><!--/kit-hero-->
+    <section id="tour">
       <div class="reveal" style="text-align:center">
-        <p class="eyebrow">Hover, and it opens</p>
-        <h2>Everything in one small place</h2>
+        <p class="eyebrow">The tour</p>
+        <h2>Tiny when you don't need it.<br>Everything when you do.</h2>
+        <p class="sub" style="margin:14px auto 0">Scroll, and watch Piztki go from a little pill to your whole day.</p>
       </div>
-      <div class="demo reveal" aria-hidden="true">
-        <div class="left">
-          <svg class="mascot" viewBox="0 0 120 96"></svg>
-          <div class="clock" id="demo-clock">12:00</div>
-          <div class="date" id="demo-date">Mon, 1 Jan</div>
+      <div class="tour">
+        <div class="tour-steps">
+          <div class="tour-step" data-step="pill"><span class="num">01</span><h3>It waits as a tiny pill</h3><p>A small pill floating at the top of the screen. It shows the song that's playing, and nothing else.</p></div>
+          <div class="tour-step" data-step="0"><span class="num">02</span><h3>Hover, and it opens</h3><p>The cover, the controls and the clock, with Piztki on the side. Move away and it tucks back in.</p></div>
+          <div class="tour-step" data-step="1"><span class="num">03</span><h3>Sing along, line by line</h3><p>The words light up as they're sung, from any music app. Hebrew and Arabic fill from the right.</p></div>
+          <div class="tour-step" data-step="2"><span class="num">04</span><h3>Your day at a glance</h3><p>This month's calendar and your next event. Piztki reminds you ten minutes before it starts.</p></div>
         </div>
-        <div class="right">
-          <div class="tabs"><i class="on"></i><i></i><i></i></div>
-          <div class="page on">
-            <div class="mini">
-              <div class="wide">Music<b>Your favorite song</b>The artist you love</div>
-              <div>Timers<b>25:00</b>Ready</div>
-              <div>Tasks<b>2 left</b>Buy milk</div>
+        <div class="tour-stage">
+          <div class="tour-screen" id="tour-screen">
+            <video class="rs" data-step="pill 0" src="media/music.mp4" muted playsinline preload="auto"></video>
+            <video class="rs" data-step="1" src="media/lyrics.mp4" muted loop playsinline preload="auto"></video>
+            <video class="rs" data-step="2" src="media/calendar.mp4" muted loop playsinline preload="auto"></video>
+            <div class="old-demo" hidden>
+            <div class="pill tour-pill" aria-hidden="true">
+              <svg class="mascot" viewBox="0 0 120 96"></svg>
+              <span class="lyric">Now I'm singing along with every word</span>
+              <span class="bars"><b></b><b></b><b></b></span>
+            </div>
+            <div class="demo" aria-hidden="true">
+              <div class="left">
+                <svg class="mascot" viewBox="0 0 120 96"></svg>
+                <div class="clock" id="demo-clock">12:00</div>
+                <div class="date" id="demo-date">Mon, 1 Jan</div>
+              </div>
+              <div class="right">
+                <div class="tabs"><i class="on"></i><i></i><i></i></div>
+                <div class="page on">
+                  <div class="mini">
+                    <div class="wide">Music<b>Your favorite song</b>The artist you love</div>
+                    <div>Timers<b>25:00</b>Ready</div>
+                    <div>Tasks<b>2 left</b>Buy milk</div>
+                  </div>
+                </div>
+                <div class="page">
+                  <div class="lines">
+                    <p>The line that was just sung</p>
+                    <p class="now lyric">The line being sung right now</p>
+                    <p>And the one that comes next</p>
+                    <p>Then another after that</p>
+                  </div>
+                </div>
+                <div class="page">
+                  <div class="cal" id="demo-cal"></div>
+                  <div class="event"><b>14:00</b>Dentist</div>
+                </div>
+              </div>
+            </div>
+            <div class="tour-icons"><i></i><i></i><i></i><i></i></div>
             </div>
           </div>
-          <div class="page">
-            <div class="lines">
-              <p>The line that was just sung</p>
-              <p class="now lyric">The line being sung right now</p>
-              <p>And the one that comes next</p>
-              <p>Then another after that</p>
-            </div>
-          </div>
-          <div class="page">
-            <div class="cal" id="demo-cal"></div>
-            <div class="event"><b>14:00</b>Dentist</div>
-          </div>
+          <p class="tour-note">Recorded straight from the app on a real Windows desktop.</p>
         </div>
       </div>
     </section>
+    <style>
+      .tour { display: grid; grid-template-columns: 1fr 1.4fr; gap: 50px; margin-top: 40px; align-items: start; }
+      .tour-steps { padding: 4vh 0 16vh; }
+      .tour-step { min-height: 50vh; display: flex; flex-direction: column; justify-content: center; opacity: .28; transition: opacity .5s; }
+      .tour-step.on { opacity: 1; }
+      .tour-step .num { font-size: 13px; font-weight: 650; color: #6d6b7d; letter-spacing: 1.4px; }
+      .tour-step h3 { font-size: clamp(24px, 2.8vw, 34px); line-height: 1.15; letter-spacing: -.02em; margin-top: 8px; }
+      .tour-step p { color: var(--subtle); margin-top: 12px; }
+      .tour-stage { position: sticky; top: 100px; }
+      .tour-screen { position: relative; aspect-ratio: 16 / 10.5; border-radius: 22px; overflow: hidden; border: 1px solid #ffffff22;
+                     background: radial-gradient(120% 90% at 20% 10%, #2d2a5c 0, transparent 60%), radial-gradient(90% 80% at 85% 90%, #4a1f3a 0, transparent 60%), linear-gradient(160deg, #1a1830, #0d1220);
+                     box-shadow: 0 40px 120px -20px #000, inset 0 0 0 6px #0b0b10; }
+      .tour-screen .tour-pill { position: absolute; top: 0; left: 50%; transform: translateX(-50%); margin: 0; max-width: 92%; transition: opacity .4s, transform .5s cubic-bezier(.3,1.4,.5,1); }
+      .tour-screen .demo { position: absolute; top: 0; left: 50%; width: min(520px, 92%); margin: 0; transform: translateX(-50%) scale(.4, .25); transform-origin: top center; opacity: 0;
+                           transition: transform .55s cubic-bezier(.3,1.3,.5,1), opacity .35s; }
+      .tour-screen.open .demo { transform: translateX(-50%); opacity: 1; }
+      .tour-screen.open .tour-pill { opacity: 0; transform: translateX(-50%) scale(1.3); }
+      .tour-screen .demo, .tour-screen .tour-pill { z-index: 2; }
+      .tour-icons { position: absolute; left: 4%; bottom: 6%; display: grid; gap: 14px; z-index: 0; }
+      .tour-icons i { width: 40px; height: 40px; border-radius: 10px; background: #ffffff12; border: 1px solid #ffffff14; }
+      @media (max-width: 860px) {
+        .tour { grid-template-columns: 1fr; gap: 0; }
+        .tour-stage { order: -1; top: 62px; z-index: 2; padding-bottom: 10px; background: linear-gradient(var(--bg) 80%, transparent); }
+        .tour-steps { padding: 0 0 10vh; }
+        .tour-step { min-height: 42vh; text-align: center; align-items: center; }
+        .tour-screen { aspect-ratio: 4 / 3.4; }
+        .tour-screen .demo { grid-template-columns: 84px 1fr; padding: 12px; gap: 10px; }
+        .tour-screen .demo .left svg { width: 70px; height: 58px; }
+        .tour-icons { display: none; }
+      }
+      .tour-screen { aspect-ratio: 16 / 9 !important; background: linear-gradient(90deg, #24233f, #3e2b5e) !important; }
+      .tour-screen .rs { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.02); transition: opacity .5s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+      .tour-screen .rs.on { opacity: 1; transform: none; }
+      /* the hero pill looks like the real one: floating, fully round, like in the recordings */
+      .hero > .pill { border-radius: 999px !important; border: 1px solid #ffffff1f !important; margin-top: 10px !important; background: linear-gradient(90deg, #0b0b12, #141a3c) !important; }
+      .tour-note { text-align: center; color: #6d6b7d; font-size: 13.5px; margin-top: 14px; }
+      @media (max-width: 860px) { .tour-screen { aspect-ratio: 656 / 290 !important; } }
+    </style>
+    <!--clips-js--><script>
+  window.Clips = (() => {
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      const v = e.target;
+      if (e.isIntersecting) { const p = v.play(); if (p) p.catch(() => {}); } else v.pause();
+    }), { rootMargin: '120px' });
+    const fallback = v => {
+      if (v.dataset.fell) return; v.dataset.fell = 1;
+      const img = document.createElement('img');
+      img.src = v.dataset.gif; img.alt = v.getAttribute('aria-label') || ''; img.className = v.className;
+      for (const a of ['width', 'height', 'style']) if (v.hasAttribute(a)) img.setAttribute(a, v.getAttribute(a));
+      const done = () => img.closest('.waiting')?.classList.remove('waiting');
+      img.addEventListener('load', done, { once: true }); img.addEventListener('error', done, { once: true });
+      v.replaceWith(img);
+    };
+    const watch = v => { io.observe(v); v.addEventListener('error', () => fallback(v), { once: true }); v.querySelector('source')?.addEventListener('error', () => fallback(v), { once: true }); };
+    // a fresh clip, e.g. for a scene: plays from the start right away
+    const make = (base, label) => {
+      const v = document.createElement('video');
+      Object.assign(v, { muted: true, loop: true, playsInline: true, autoplay: true, preload: 'auto' });
+      v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+      v.dataset.gif = base + '.gif'; v.setAttribute('aria-label', label || '');
+      v.src = base + '.mp4';
+      v.addEventListener('error', () => fallback(v), { once: true });
+      return v;
+    };
+    document.querySelectorAll('video.clip').forEach(watch);
+    return { watch, make };
+  })();
+</script><!--/clips-js-->
+<script>
+      (() => {
+        const screen = document.getElementById('tour-screen'), steps = [...document.querySelectorAll('.tour-step')];
+        const demo = screen.querySelector('.demo');
+        if (demo) demo.dataset.locked = '1';
+        const vids = [...screen.querySelectorAll('.rs')];
+        let cur = null;
+        const go = step => {
+          if (step === cur) return; cur = step;
+          steps.forEach(s => s.classList.toggle('on', s.dataset.step === step));
+          for (const v of vids) {
+            const mine = v.dataset.step.split(' ').includes(step);
+            v.classList.toggle('on', mine);
+            if (!mine) { v.pause(); continue; }
+            v.currentTime = 0;
+            if (step === 'pill') v.pause(); else v.play().catch(() => {});
+          }
+        };
+        // after opening, hold on the open notch instead of jumping back to the pill
+        vids[0].addEventListener('ended', () => { if (cur === '0') { vids[0].currentTime = Math.max(0, vids[0].duration - 2.5); vids[0].play().catch(() => {}); } });
+        const obs = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && go(e.target.dataset.step)), { rootMargin: '-45% 0px -45% 0px' });
+        steps.forEach(s => obs.observe(s));
+        go('0');
+      })();
+    </script>
+
+    <section id="action">
+      <div class="reveal" style="text-align:center">
+        <p class="eyebrow">See it in action</p>
+        <h2>The real thing, recorded</h2>
+        <p class="sub" style="margin:10px auto 0">Pick a feature and watch it work, straight from the app.</p>
+      </div>
+      <div class="show reveal">
+        <div class="show-list" id="show-list"></div>
+        <div class="show-frame"><video id="show-img" class="clip" muted loop playsinline autoplay preload="auto"></video><div class="show-cap" id="show-cap"></div><div class="show-time"><i id="show-time"></i></div></div>
+      </div>
+    </section>
+    <style>
+      .show { display: grid; grid-template-columns: 260px 1fr; gap: 22px; margin-top: 34px; align-items: start; }
+      .show-list { display: flex; flex-direction: column; gap: 4px; max-height: 520px; overflow-y: auto; padding-right: 6px; scrollbar-width: thin; scrollbar-color: #ffffff30 transparent; }
+      .show-list button { text-align: left; border: 1px solid transparent; background: transparent; color: var(--subtle); font: inherit; font-size: 15px; padding: 10px 14px; border-radius: 12px; cursor: pointer;
+                          display: flex; align-items: center; gap: 10px; transition: background .2s, color .2s, border-color .2s; }
+      .show-list button::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ffffff30; transition: background .2s, transform .2s; }
+      .show-list button:hover { background: #ffffff0a; color: var(--text); }
+      .show-list button.on { background: #ffffff10; color: var(--text); border-color: #ffffff1c; font-weight: 600; }
+      .show-list button.on::before { background: var(--accent); transform: scale(1.3); }
+      .show-frame { position: relative; border-radius: 24px; overflow: hidden; border: 1px solid #ffffff22; background: #000; aspect-ratio: 16 / 10; box-shadow: 0 40px 100px -30px #000, 0 0 80px -40px var(--accent); }
+      .show-frame img, .show-frame video { width: 100%; height: 100%; object-fit: contain; display: block; transition: opacity .35s; }
+      .show-frame .fading { opacity: 0; }
+      .show-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 30px 22px 18px; background: linear-gradient(transparent, #000d); font-size: 15px; color: #e8e6f3; }
+      .show-cap b { display: block; font-size: 19px; color: #fff; }
+      .show-time { position: absolute; left: 0; right: 0; top: 0; height: 3px; background: #ffffff14; }
+      .show-time i { display: block; height: 100%; width: 0; background: var(--accent); }
+      @media (max-width: 760px) {
+        .show { grid-template-columns: 1fr; }
+        .show-list { flex-direction: row; overflow-x: auto; max-height: none; padding: 0 0 6px; }
+        .show-list button { white-space: nowrap; }
+        .show-list button::before { display: none; }
+        .show-cap { font-size: 13.5px; padding: 24px 14px 12px; }
+        .show-cap b { font-size: 16px; }
+      }
+    </style>
+    <script>
+      (() => {
+        const items = [
+          ['music', 'Now playing', 'The song, artist and cover, with play, pause and skip.'],
+          ['lyrics', 'Live lyrics', 'The line being sung fills with light as it goes.'],
+          ['song-colors', 'Song colors', 'The notch glows in the colors of the album cover.'],
+          ['timers', 'Timers', 'Focus timer, countdown and stopwatch in one tab.'],
+          ['quick-timer', 'Quick timer', 'Press, pull down and let go on 5, 10 or 25 minutes.'],
+          ['todo', 'To-do', 'Type a task, press Enter, tick it off.'],
+          ['calendar', 'Calendar', 'Add an event and get reminded before it starts.'],
+          ['focus-chart', 'Focus chart', 'How long you focused on each of the last seven days.'],
+          ['water', 'Water', 'Count your glasses toward a daily goal.'],
+          ['shelf', 'Shelf', 'Park files on the notch and drag them out later.'],
+          ['notes', 'Notes', 'Quick notes that save by themselves.'],
+          ['clipboard', 'Clipboard', 'The last few things you copied, one click away.'],
+          ['shortcuts', 'Shortcuts', 'Your favorite apps and folders, one click away.'],
+          ['search', 'Search box', 'Open apps, do sums and convert units from one box.'],
+          ['downloads', 'Downloads', 'Watch a download and hear when it is done.'],
+          ['notifications', 'Notifications', 'New messages from any app, for a few seconds.'],
+          ['popups', 'Popups', 'Volume, Caps Lock, battery and more, right in the pill.'],
+          ['privacy-dots', 'Mic and camera dots', 'A dot lights up while an app uses them.'],
+          ['system', 'System', 'Processor, memory and network at a glance.'],
+          ['game-summary', 'Game summary', 'Your match, back in the lobby.'],
+          ['game-mode', 'Game mode', 'A tiny strip with the time and your PC while you play.'],
+          ['stretch', 'Stretch reminders', 'A friendly nudge to stand up.'],
+          ['themes', 'Themes', 'Midnight, Neon, Glass or Pastel.'],
+          ['mascot', 'The mascot', 'Blinks, waves and dances to your music.'],
+        ];
+        const list = document.getElementById('show-list'), img = document.getElementById('show-img'), cap = document.getElementById('show-cap'), time = document.getElementById('show-time');
+        list.innerHTML = items.map(([k, t], i) => `<button data-i="${i}">${t}</button>`).join('');
+        const btns = [...list.children];
+        let cur = -1, timer, started = false;
+        const show = i => {
+          cur = i;
+          const [k, t, d] = items[i];
+          btns.forEach((b, j) => b.classList.toggle('on', j === i));
+          img.classList.add('fading');
+          img.dataset.gif = `media/${k}.gif`; img.setAttribute('aria-label', t);
+          img.onloadeddata = () => { if (cur !== i) return; img.classList.remove('fading'); img.play().catch(() => {}); };
+          img.src = `media/${k}.mp4`;
+          cap.innerHTML = `<b>${t}</b>${d}`;
+          time.style.transition = 'none'; time.style.width = '0';
+          requestAnimationFrame(() => requestAnimationFrame(() => { time.style.transition = 'width 6s linear'; time.style.width = '100%'; }));
+          clearTimeout(timer); timer = setTimeout(() => show((cur + 1) % items.length), 6000);
+        };
+        btns.forEach(b => b.onclick = () => { show(+b.dataset.i); b.scrollIntoView({ block: 'nearest', inline: 'nearest' }); });
+        // start (and load the first picture) only when the section comes into view
+        const sec = document.getElementById('action');
+        const start = () => { if (started) return; started = true; show(0); removeEventListener('scroll', near); };
+        const near = () => { const r = sec.getBoundingClientRect(); if (r.top < innerHeight + 200 && r.bottom > -200) start(); };
+        new IntersectionObserver(es => { if (es[0].isIntersecting) start(); }, { rootMargin: '200px' }).observe(sec);
+        addEventListener('scroll', near, { passive: true }); near();   // in case the observer is slow to wake
+      })();
+    </script>
 
     <section id="features">
       <div class="reveal">
@@ -369,6 +718,7 @@
           </div>
         </div>
       </div>
+      <p class="demo-note">A demo built for the website. The real app may look and work a little differently.</p>
       <div class="grid">
         <div class="card reveal"><h3>Moods</h3><p>Happy after a win, sleepy late at night, a little sad when the battery runs low.</p></div>
         <div class="card reveal"><h3>Textures</h3><p>Stars, carbon, waves, honeycomb, or plain. Five looks for the cube.</p></div>
@@ -392,6 +742,18 @@
       </div>
     </section>
 
+    <!--kit-bento--><section id="why">
+      <div class="reveal" style="text-align:center"><p class="eyebrow">Why people keep it</p><h2>Small enough to forget it's there. Handy enough to miss it when it's gone.</h2></div>
+      <div class="k-bento">
+        <div class="k-tile k-t1 reveal"><h3>Music, everywhere</h3><p>Whatever is playing, in any app, shows up by itself, lyrics and all.</p><div class="k-eq"><b style="height:30%;animation-duration:0.45s;animation-delay:-0.00s"></b><b style="height:99%;animation-duration:0.57s;animation-delay:-0.07s"></b><b style="height:48%;animation-duration:0.69s;animation-delay:-0.14s"></b><b style="height:95%;animation-duration:0.81s;animation-delay:-0.21s"></b><b style="height:65%;animation-duration:0.93s;animation-delay:-0.28s"></b><b style="height:86%;animation-duration:0.45s;animation-delay:-0.35s"></b><b style="height:79%;animation-duration:0.57s;animation-delay:-0.42s"></b><b style="height:73%;animation-duration:0.69s;animation-delay:-0.49s"></b><b style="height:90%;animation-duration:0.81s;animation-delay:-0.56s"></b><b style="height:58%;animation-duration:0.93s;animation-delay:-0.63s"></b><b style="height:97%;animation-duration:0.45s;animation-delay:-0.70s"></b><b style="height:40%;animation-duration:0.57s;animation-delay:-0.77s"></b><b style="height:100%;animation-duration:0.69s;animation-delay:-0.84s"></b><b style="height:38%;animation-duration:0.81s;animation-delay:-0.91s"></b><b style="height:98%;animation-duration:0.93s;animation-delay:-0.98s"></b><b style="height:55%;animation-duration:0.45s;animation-delay:-1.05s"></b><b style="height:92%;animation-duration:0.57s;animation-delay:-1.12s"></b><b style="height:71%;animation-duration:0.69s;animation-delay:-1.19s"></b><b style="height:81%;animation-duration:0.81s;animation-delay:-1.26s"></b><b style="height:84%;animation-duration:0.93s;animation-delay:-1.33s"></b><b style="height:67%;animation-duration:0.45s;animation-delay:-1.40s"></b><b style="height:94%;animation-duration:0.57s;animation-delay:-1.47s"></b></div></div>
+        <div class="k-tile k-t2 reveal"><div class="k-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><h3>Private by design</h3><p>No account. No ads. No tracking. Your stuff stays on your PC.</p></div>
+        <div class="k-tile k-t3 reveal"><h3>Never in the way</h3><p>It slides off the screen for full-screen games and videos.</p></div>
+        <div class="k-tile k-t4 reveal"><h3>Light on your PC</h3><p>Anything you can't see stops animating.</p><div class="k-meter"><div><span>This app</span><i style="--w:24%"></i></div><div><span>A browser tab</span><i style="--w:100%;--c:#ffffff40"></i></div></div></div>
+        <div class="k-tile k-t5 reveal"><h3>Free. Really.</h3><p>Every feature, no catch.</p><div class="k-num">$0</div></div>
+        <div class="k-tile k-t6 k-sib reveal" style="--sib:#5dcaa5"><div><h3>Also from Pitzki: Pitzki Widgets</h3><p>Want live cards on your desktop too? Same Pitzki, same look.</p></div><a class="k-go" href="https://yahavpenso.github.io/PitzkiWidgets/">Meet Pitzki Widgets →</a></div>
+      </div>
+    </section>
+    <!--/kit-bento-->
     <section id="install">
       <div class="reveal">
         <p class="eyebrow">Install</p>
@@ -416,13 +778,19 @@
     <div class="big reveal">
       <svg class="mascot" viewBox="0 0 120 96" style="width:120px;height:96px"></svg>
       <h2 style="margin-top:10px">Ready when you are</h2>
-      <p style="margin-top:22px"><a class="button" href="https://github.com/yahavpenso/Piztki/releases">Download Piztki</a></p>
-    </div>
+      <p style="margin-top:22px"><a class="button" href="https://github.com/yahavpenso/Piztki/releases"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m-4.5-4.5L10 13l4.5-4.5M4 17h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Download Piztki</a></p><!--kit-fam--><p class="k-family-link">Part of the Pitzki family · <a href="https://yahavpenso.github.io/">See both apps →</a></p><!--/kit-fam--></div>
   </div>
 
-  <footer>
-    <div class="wrap">Lyrics from LRCLIB · Weather data by Open-Meteo.com (CC BY 4.0) · Location by GeoJS · Sound analysis with NAudio</div>
-  </footer>
+  <!--brand-footer--><footer class="b-footer"><div class="b-in">
+  <div class="b-cols">
+    <div><div class="b-brand"><img src="icon.png" alt="">Piztki</div><p class="b-blurb">Part of the Pitzki family: two little apps that make your Windows screen a little more alive. Free, private, and made with care.</p></div>
+    <div><h4>Pitzki family</h4><a href="https://yahavpenso.github.io/">Pitzki home</a><a href="https://yahavpenso.github.io/Piztki/">Pitzki notch</a><a href="https://yahavpenso.github.io/PitzkiWidgets/">Pitzki Widgets</a></div>
+    <div><h4>Download</h4><a href="https://github.com/yahavpenso/Piztki/releases">Pitzki notch</a><a href="https://github.com/yahavpenso/PitzkiWidgets/releases/latest">Pitzki Widgets</a><a href="https://yahavpenso.github.io/#which">Which one is for me?</a></div>
+    <div><h4>More</h4><a href="privacy.html">Privacy</a><a href="https://github.com/yahavpenso/Piztki/wiki">Help pages</a><a href="https://github.com/yahavpenso">GitHub</a></div>
+  </div>
+  <p class="b-credits">Lyrics from LRCLIB · Weather by Open-Meteo.com (CC BY 4.0) · Location by GeoJS · Sound analysis with NAudio</p>
+  <div class="b-bottom"><span>© 2026 Pitzki. Free for everyone.</span><span>Not affiliated with Microsoft or any game named here.</span></div>
+</div></footer><!--/brand-footer-->
 </main>
 
 <script>
@@ -503,10 +871,49 @@
   const pages = [...document.querySelectorAll('.demo .page')], tabs = [...document.querySelectorAll('.demo .tabs i')];
   let shown = 0;
   setInterval(() => {
+    if (document.querySelector('.demo').dataset.locked) return;
     shown = (shown + 1) % pages.length;
     pages.forEach((p, i) => p.classList.toggle('on', i === shown));
     tabs.forEach((t, i) => t.classList.toggle('on', i === shown));
   }, 3600);
 </script>
+<!--brand-js--><button class="b-top" id="b-top" aria-label="Back to top">↑</button>
+<script>
+  (() => {
+    const nav = document.querySelector('nav'), bar = document.getElementById('b-progress'), top = document.getElementById('b-top');
+    const links = nav ? [...nav.querySelectorAll('a.link')].filter(a => a.getAttribute('href').startsWith('#')) : [];
+    const on = () => {
+      const y = scrollY, h = document.documentElement.scrollHeight - innerHeight;
+      if (nav) nav.classList.toggle('stuck', y > 40);
+      bar.style.transform = `scaleX(${h > 0 ? y / h : 0})`;
+      top.classList.toggle('show', y > 900);
+      let cur = null;
+      for (const a of links) { const s = document.querySelector(a.getAttribute('href')); if (s && s.getBoundingClientRect().top < 160) cur = a; }
+      links.forEach(a => a.classList.toggle('on', a === cur));
+    };
+    addEventListener('scroll', on, { passive: true }); on();
+    top.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
+  })();
+</script><!--/brand-js-->
+<!--kit-js--><script>
+  (() => {
+    const run = el => { const end = +el.dataset.kcount, t0 = performance.now();
+      const f = t => { const p = Math.min(1, (t - t0) / 1200); el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); };
+    const io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; e.target.classList.add('in'); e.target.querySelectorAll('[data-kcount]').forEach(run); io.unobserve(e.target); }), { threshold: .2 });
+    document.querySelectorAll('.k-stats, .k-tile').forEach(el => io.observe(el));
+  })();
+</script><!--/kit-js-->
+<!--local-links--><script>
+  // On this computer (or a phone on the same Wi-Fi) the sites run on local ports; send the family links there instead of the web.
+  if (/^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname)) {
+    const base = location.protocol + '//' + location.hostname + ':';
+    const map = [['https://yahavpenso.github.io/PitzkiWidgets/', base + '8766/'],
+                 ['https://yahavpenso.github.io/Piztki/', base + '8767/'],
+                 ['https://yahavpenso.github.io/', base + '8770/']];
+    document.querySelectorAll('a[href^="https://yahavpenso.github.io/"]').forEach(a => {
+      for (const [web, local] of map) if (a.href.startsWith(web)) { a.href = local + a.href.slice(web.length); break; }
+    });
+  }
+</script><!--/local-links-->
 </body>
 </html>
