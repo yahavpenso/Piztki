@@ -169,60 +169,6 @@
     .reveal { opacity: 1; transform: none; }
   }
 </style>
-<!--brand-meta--><meta name="theme-color" content="#09090d"><meta property="og:type" content="website"><meta property="og:title" content="Piztki: a friendly little notch for Windows"><meta property="og:description" content="A friendly notch at the top of your Windows screen: music, live lyrics, timers, tasks and your calendar one hover away. Free, no account."><meta property="og:image" content="https://yahavpenso.github.io/Piztki/social.png"><meta property="og:url" content="https://yahavpenso.github.io/Piztki/"><meta name="twitter:card" content="summary_large_image"><!--/brand-meta-->
-<style id="brand-css">
-  /* ===== shared Pitzki family look (same on all three sites) ===== */
-  :root { --b-notch: #afa9ec; --b-cards: #5dcaa5; --b-line: #ffffff14; --b-line2: #ffffff26; --b-faint: #6d6b7d; --b-ease: cubic-bezier(.2,.8,.2,1); }
-  body { -webkit-font-smoothing: antialiased; }
-  ::selection { background: var(--accent); color: #15131f; }
-  .b-grain { position: fixed; inset: -50%; z-index: -1; pointer-events: none; opacity: .05;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  .b-family { position: relative; z-index: 31; background: #000; border-bottom: 1px solid var(--b-line); font-size: 13px; }
-  .b-family .b-in { max-width: 1160px; margin: 0 auto; padding: 0 22px; display: flex; align-items: center; gap: 4px; height: 38px; overflow-x: auto; scrollbar-width: none; }
-  .b-family .b-in::-webkit-scrollbar { display: none; }
-  .b-family a { color: #a3a1b4; text-decoration: none; padding: 5px 12px; border-radius: 999px; white-space: nowrap; display: flex; align-items: center; gap: 7px; transition: color .2s, background .2s; }
-  .b-family a:hover { color: #fff; background: #ffffff10; }
-  .b-family a.here { color: #fff; background: #ffffff14; }
-  .b-family a i { width: 7px; height: 7px; border-radius: 50%; }
-  .b-family .sp { margin-left: auto; }
-  nav { backdrop-filter: saturate(1.6) blur(18px) !important; -webkit-backdrop-filter: saturate(1.6) blur(18px); border-bottom-color: transparent !important; transition: border-color .3s, background .3s; }
-  nav.stuck { border-bottom-color: var(--b-line) !important; }
-  nav a.link { position: relative; }
-  nav a.link::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; border-radius: 2px; background: var(--accent); transform: scaleX(0); transition: transform .3s var(--b-ease); }
-  nav a.link.on { color: var(--text); }
-  nav a.link.on::after { transform: scaleX(1); }
-  .hero h1 { font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-size: clamp(44px, 8vw, 92px) !important; line-height: 1.02 !important; letter-spacing: -.045em !important; font-weight: 700; }
-  .hero h1 span { background: linear-gradient(100deg, var(--b-notch) 10%, #d8d4ff 40%, var(--b-cards) 75%); -webkit-background-clip: text; background-clip: text; color: transparent !important;
-                  background-size: 200% 100%; animation: b-sheen 9s ease-in-out infinite alternate; }
-  @keyframes b-sheen { to { background-position: 100% 0; } }
-  .hero .lead { font-size: clamp(18px, 2.2vw, 21px) !important; line-height: 1.5; }
-  h2 { font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-size: clamp(32px, 5vw, 54px) !important; line-height: 1.06 !important; letter-spacing: -.035em !important; font-weight: 700; }
-  .eyebrow { display: inline-flex; align-items: center; gap: 8px; letter-spacing: 1.6px !important; }
-  .eyebrow::before { content: ""; width: 18px; height: 2px; border-radius: 2px; background: currentColor; }
-  .sub { font-size: 18px; line-height: 1.55; }
-  section { padding-top: 84px !important; padding-bottom: 84px !important; }
-  .button { transition: transform .25s cubic-bezier(.3,1.5,.5,1), filter .2s, box-shadow .3s !important; }
-  .button:hover { transform: translateY(-2px) scale(1.03) !important; box-shadow: 0 10px 30px -8px var(--accent); }
-  .ghost { border: 1px solid var(--b-line); }
-  .card, .tile { border-radius: 20px; }
-  .b-progress { position: fixed; left: 0; top: 0; height: 2px; width: 100%; z-index: 60; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--b-notch), var(--b-cards)); pointer-events: none; }
-  .b-top { position: fixed; right: 20px; bottom: 20px; z-index: 50; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--b-line2); background: #15151bcc; backdrop-filter: blur(10px);
-           color: #fff; font-size: 18px; cursor: pointer; opacity: 0; transform: translateY(14px); pointer-events: none; transition: opacity .3s, transform .3s cubic-bezier(.3,1.5,.5,1); }
-  .b-top.show { opacity: 1; transform: none; pointer-events: auto; }
-  footer.b-footer { border-top: 1px solid var(--b-line); margin-top: 90px; padding: 56px 0 40px; color: #a3a1b4; font-size: 14px; text-align: left; background: #000000a0; }
-  .b-footer .b-in { max-width: 1160px; margin: 0 auto; padding: 0 22px; }
-  .b-cols { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 30px; }
-  @media (max-width: 760px) { .b-cols { grid-template-columns: 1fr 1fr; } .b-cols > :first-child { grid-column: span 2; } }
-  .b-cols h4 { color: #fff; font-size: 13.5px; margin: 0 0 12px; font-weight: 650; }
-  .b-cols a { display: block; color: #a3a1b4; text-decoration: none; padding: 4px 0; transition: color .2s; }
-  .b-cols a:hover { color: #fff; }
-  .b-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 650; font-size: 17px; }
-  .b-brand img { width: 30px; height: 30px; border-radius: 8px; }
-  .b-blurb { margin-top: 12px; max-width: 300px; line-height: 1.55; }
-  .b-credits { margin-top: 34px; color: var(--b-faint); font-size: 13px; }
-  .b-bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--b-line); margin-top: 18px; padding-top: 22px; color: var(--b-faint); font-size: 13px; }
-  @media (prefers-reduced-motion: reduce) { .hero h1 span { animation: none; } }
-</style>
 <style id="kit-css">
   .k-badge { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border-radius: 999px; border: 1px solid #ffffff26; background: #ffffff0a;
              font-size: 13.5px; color: var(--subtle); text-decoration: none; margin-bottom: 18px; transition: border-color .2s, background .2s; }
@@ -306,9 +252,63 @@
   ::-webkit-scrollbar-corner { background: #07070a; }
 </style>
 <style id="demo-note-css">.demo-note{color:#6d6b7d;font-size:12.5px;text-align:center;margin:10px 0 0;font-style:italic}</style>
+<!--brand-meta--><meta name="theme-color" content="#09090d"><meta property="og:type" content="website"><meta property="og:title" content="Piztki: a friendly little notch for Windows"><meta property="og:description" content="A friendly notch at the top of your Windows screen: music, live lyrics, timers, tasks and your calendar one hover away. Free, no account."><meta property="og:image" content="https://yahavpenso.github.io/Piztki/social.png"><meta property="og:url" content="https://yahavpenso.github.io/Piztki/"><meta name="twitter:card" content="summary_large_image"><!--/brand-meta-->
+<style id="brand-css">
+  /* ===== shared Pitzki family look (same on all three sites) ===== */
+  :root { --b-notch: #afa9ec; --b-cards: #5dcaa5; --b-line: #ffffff14; --b-line2: #ffffff26; --b-faint: #6d6b7d; --b-ease: cubic-bezier(.2,.8,.2,1); }
+  body { -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--accent); color: #15131f; }
+  .b-grain { position: fixed; inset: -50%; z-index: -1; pointer-events: none; opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .b-family { position: relative; z-index: 31; background: #000; border-bottom: 1px solid var(--b-line); font-size: 13px; }
+  .b-family .b-in { max-width: 1160px; margin: 0 auto; padding: 0 22px; display: flex; align-items: center; gap: 4px; height: 38px; overflow-x: auto; scrollbar-width: none; }
+  .b-family .b-in::-webkit-scrollbar { display: none; }
+  .b-family a { color: #a3a1b4; text-decoration: none; padding: 5px 12px; border-radius: 999px; white-space: nowrap; display: flex; align-items: center; gap: 7px; transition: color .2s, background .2s; }
+  .b-family a:hover { color: #fff; background: #ffffff10; }
+  .b-family a.here { color: #fff; background: #ffffff14; }
+  .b-family a i { width: 7px; height: 7px; border-radius: 50%; }
+  .b-family .sp { margin-left: auto; }
+  nav { backdrop-filter: saturate(1.6) blur(18px) !important; -webkit-backdrop-filter: saturate(1.6) blur(18px); border-bottom-color: transparent !important; transition: border-color .3s, background .3s; }
+  nav.stuck { border-bottom-color: var(--b-line) !important; }
+  nav a.link { position: relative; }
+  nav a.link::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; border-radius: 2px; background: var(--accent); transform: scaleX(0); transition: transform .3s var(--b-ease); }
+  nav a.link.on { color: var(--text); }
+  nav a.link.on::after { transform: scaleX(1); }
+  .hero h1 { font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-size: clamp(44px, 8vw, 92px) !important; line-height: 1.02 !important; letter-spacing: -.045em !important; font-weight: 700; }
+  .hero h1 span { background: linear-gradient(100deg, var(--b-notch) 10%, #d8d4ff 40%, var(--b-cards) 75%); -webkit-background-clip: text; background-clip: text; color: transparent !important;
+                  background-size: 200% 100%; animation: b-sheen 9s ease-in-out infinite alternate; }
+  @keyframes b-sheen { to { background-position: 100% 0; } }
+  .hero .lead { font-size: clamp(18px, 2.2vw, 21px) !important; line-height: 1.5; }
+  h2 { font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-size: clamp(32px, 5vw, 54px) !important; line-height: 1.06 !important; letter-spacing: -.035em !important; font-weight: 700; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; letter-spacing: 1.6px !important; }
+  .eyebrow::before { content: ""; width: 18px; height: 2px; border-radius: 2px; background: currentColor; }
+  .sub { font-size: 18px; line-height: 1.55; }
+  section { padding-top: 84px !important; padding-bottom: 84px !important; }
+  .button { transition: transform .25s cubic-bezier(.3,1.5,.5,1), filter .2s, box-shadow .3s !important; }
+  .button:hover { transform: translateY(-2px) scale(1.03) !important; box-shadow: 0 10px 30px -8px var(--accent); }
+  .ghost { border: 1px solid var(--b-line); }
+  .card, .tile { border-radius: 20px; }
+  .b-progress { position: fixed; left: 0; top: 0; height: 2px; width: 100%; z-index: 60; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--b-notch), var(--b-cards)); pointer-events: none; }
+  .b-top { position: fixed; right: 20px; bottom: 20px; z-index: 50; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--b-line2); background: #15151bcc; backdrop-filter: blur(10px);
+           color: #fff; font-size: 18px; cursor: pointer; opacity: 0; transform: translateY(14px); pointer-events: none; transition: opacity .3s, transform .3s cubic-bezier(.3,1.5,.5,1); }
+  .b-top.show { opacity: 1; transform: none; pointer-events: auto; }
+  footer.b-footer { border-top: 1px solid var(--b-line); margin-top: 90px; padding: 56px 0 40px; color: #a3a1b4; font-size: 14px; text-align: left; background: #000000a0; }
+  .b-footer .b-in { max-width: 1160px; margin: 0 auto; padding: 0 22px; }
+  .b-cols { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 30px; }
+  @media (max-width: 760px) { .b-cols { grid-template-columns: 1fr 1fr; } .b-cols > :first-child { grid-column: span 2; } }
+  .b-cols h4 { color: #fff; font-size: 13.5px; margin: 0 0 12px; font-weight: 650; }
+  .b-cols a { display: block; color: #a3a1b4; text-decoration: none; padding: 4px 0; transition: color .2s; }
+  .b-cols a:hover { color: #fff; }
+  .b-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 650; font-size: 17px; }
+  .b-brand img { width: 30px; height: 30px; border-radius: 8px; }
+  .b-blurb { margin-top: 12px; max-width: 300px; line-height: 1.55; }
+  .b-credits { margin-top: 34px; color: var(--b-faint); font-size: 13px; }
+  .b-bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--b-line); margin-top: 18px; padding-top: 22px; color: var(--b-faint); font-size: 13px; }
+  @media (prefers-reduced-motion: reduce) { .hero h1 span { animation: none; } }
+</style>
 </head>
 <body>
-<!--brand-top--><div class="b-progress" id="b-progress"></div><div class="b-grain"></div><div class="b-family"><div class="b-in"><a href="https://yahavpenso.github.io/"><i style="background:linear-gradient(90deg,#afa9ec,#5dcaa5)"></i>Pitzki home</a><a class="here" href="https://yahavpenso.github.io/Piztki/"><i style="background:#afa9ec"></i>Pitzki notch</a><a href="https://yahavpenso.github.io/PitzkiWidgets/"><i style="background:#5dcaa5"></i>Pitzki Widgets</a><a class="sp" href="https://github.com/yahavpenso">GitHub</a></div></div><!--/brand-top-->
+<!--brand-top--><div class="b-progress" id="b-progress"></div><div class="b-grain"></div><div class="b-family"><div class="b-in"><a href="https://yahavpenso.github.io/"><i style="background:linear-gradient(90deg,#afa9ec,#5dcaa5)"></i>Pitzki home</a><a class="here" href="https://yahavpenso.github.io/Piztki/"><i style="background:#afa9ec"></i>Pitzki notch</a><a href="https://yahavpenso.github.io/PitzkiWidgets/"><i style="background:#5dcaa5"></i>Pitzki Widgets</a><a href="https://yahavpenso.github.io/launcher/"><i style="background:#85b7eb"></i>Pitzki Launcher</a><a class="sp" href="https://github.com/yahavpenso">GitHub</a></div></div><!--/brand-top-->
 <div class="sky"><i></i><i></i><i></i></div>
 
 <!-- The mascot is drawn once here and reused everywhere with <use>. -->
@@ -784,7 +784,7 @@
   <!--brand-footer--><footer class="b-footer"><div class="b-in">
   <div class="b-cols">
     <div><div class="b-brand"><img src="icon.png" alt="">Piztki</div><p class="b-blurb">Part of the Pitzki family: two little apps that make your Windows screen a little more alive. Free, private, and made with care.</p></div>
-    <div><h4>Pitzki family</h4><a href="https://yahavpenso.github.io/">Pitzki home</a><a href="https://yahavpenso.github.io/Piztki/">Pitzki notch</a><a href="https://yahavpenso.github.io/PitzkiWidgets/">Pitzki Widgets</a></div>
+    <div><h4>Pitzki family</h4><a href="https://yahavpenso.github.io/">Pitzki home</a><a href="https://yahavpenso.github.io/Piztki/">Pitzki notch</a><a href="https://yahavpenso.github.io/PitzkiWidgets/">Pitzki Widgets</a><a href="https://yahavpenso.github.io/launcher/">Pitzki Launcher</a></div>
     <div><h4>Download</h4><a href="https://github.com/yahavpenso/Piztki/releases">Pitzki notch</a><a href="https://github.com/yahavpenso/PitzkiWidgets/releases/latest">Pitzki Widgets</a><a href="https://yahavpenso.github.io/#which">Which one is for me?</a></div>
     <div><h4>More</h4><a href="privacy.html">Privacy</a><a href="https://github.com/yahavpenso/Piztki/wiki">Help pages</a><a href="https://github.com/yahavpenso">GitHub</a></div>
   </div>
@@ -877,24 +877,6 @@
     tabs.forEach((t, i) => t.classList.toggle('on', i === shown));
   }, 3600);
 </script>
-<!--brand-js--><button class="b-top" id="b-top" aria-label="Back to top">↑</button>
-<script>
-  (() => {
-    const nav = document.querySelector('nav'), bar = document.getElementById('b-progress'), top = document.getElementById('b-top');
-    const links = nav ? [...nav.querySelectorAll('a.link')].filter(a => a.getAttribute('href').startsWith('#')) : [];
-    const on = () => {
-      const y = scrollY, h = document.documentElement.scrollHeight - innerHeight;
-      if (nav) nav.classList.toggle('stuck', y > 40);
-      bar.style.transform = `scaleX(${h > 0 ? y / h : 0})`;
-      top.classList.toggle('show', y > 900);
-      let cur = null;
-      for (const a of links) { const s = document.querySelector(a.getAttribute('href')); if (s && s.getBoundingClientRect().top < 160) cur = a; }
-      links.forEach(a => a.classList.toggle('on', a === cur));
-    };
-    addEventListener('scroll', on, { passive: true }); on();
-    top.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
-  })();
-</script><!--/brand-js-->
 <!--kit-js--><script>
   (() => {
     const run = el => { const end = +el.dataset.kcount, t0 = performance.now();
@@ -915,5 +897,23 @@
     });
   }
 </script><!--/local-links-->
+<!--brand-js--><button class="b-top" id="b-top" aria-label="Back to top">↑</button>
+<script>
+  (() => {
+    const nav = document.querySelector('nav'), bar = document.getElementById('b-progress'), top = document.getElementById('b-top');
+    const links = nav ? [...nav.querySelectorAll('a.link')].filter(a => a.getAttribute('href').startsWith('#')) : [];
+    const on = () => {
+      const y = scrollY, h = document.documentElement.scrollHeight - innerHeight;
+      if (nav) nav.classList.toggle('stuck', y > 40);
+      bar.style.transform = `scaleX(${h > 0 ? y / h : 0})`;
+      top.classList.toggle('show', y > 900);
+      let cur = null;
+      for (const a of links) { const s = document.querySelector(a.getAttribute('href')); if (s && s.getBoundingClientRect().top < 160) cur = a; }
+      links.forEach(a => a.classList.toggle('on', a === cur));
+    };
+    addEventListener('scroll', on, { passive: true }); on();
+    top.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
+  })();
+</script><!--/brand-js-->
 </body>
 </html>
